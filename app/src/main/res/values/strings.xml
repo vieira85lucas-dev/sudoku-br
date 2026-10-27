@@ -395,4 +395,7 @@
     <string name="about_privacy_title">Privacy</string>
     <string name="about_privacy_subtitle">Privacy policy</string>
     <string name="about_license_notice">This app is free software licensed under the GNU GPL v3 and is based on LibreSudoku by kaajjo. The complete source code is available on GitHub.</string>
+    <string name="hint_ad_title">Get a hint</string>
+    <string name="hint_ad_text">Watch a short video to reveal this hint.</string>
+    <string name="hint_ad_watch">Watch video</string>
 </resources>
