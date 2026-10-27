@@ -69,6 +69,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.kaajjo.libresudoku.R
 import com.kaajjo.libresudoku.core.Cell
+import com.kaajjo.libresudoku.ads.BannerAd
 import com.kaajjo.libresudoku.core.PreferencesConstants
 import com.kaajjo.libresudoku.core.qqwing.GameType
 import com.kaajjo.libresudoku.core.qqwing.advanced_hint.AdvancedHintData
@@ -275,7 +276,8 @@ private fun GameScreenContent(
                     }
                 }
             )
-        }
+        },
+        bottomBar = { BannerAd() }
     ) { scaffoldPaddings ->
         if (uiState.isLoading || uiState.loadError) {
             Box(

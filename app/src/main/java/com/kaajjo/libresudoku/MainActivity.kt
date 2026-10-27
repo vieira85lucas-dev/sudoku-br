@@ -28,6 +28,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.kaajjo.libresudoku.ads.AdsManager
+import com.kaajjo.libresudoku.ads.LocalAdsManager
 import com.kaajjo.libresudoku.core.PreferencesConstants
 import com.kaajjo.libresudoku.core.utils.GlobalExceptionHandler
 import com.kaajjo.libresudoku.data.datastore.AppSettingsManager
@@ -59,12 +61,17 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var settings: AppSettingsManager
 
+    @Inject
+    lateinit var adsManager: AdsManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         if (!BuildConfig.DEBUG) {
             GlobalExceptionHandler.initialize(applicationContext, CrashActivity::class.java)
         }
+
+        adsManager.gatherConsent(this)
 
         setContent {
             val mainViewModel: MainActivityViewModel = hiltViewModel()
@@ -137,7 +144,10 @@ class MainActivity : AppCompatActivity() {
                             thinLineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.25f)
                         )
                     }
-                CompositionLocalProvider(LocalBoardColors provides boardColors) {
+                CompositionLocalProvider(
+                    LocalBoardColors provides boardColors,
+                    LocalAdsManager provides adsManager
+                ) {
                     Scaffold(
                         bottomBar = {
                             NavigationBarComponent(

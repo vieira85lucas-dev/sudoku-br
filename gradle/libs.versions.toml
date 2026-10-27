@@ -32,6 +32,8 @@ coroutinesTest = "1.9.0"
 androidxTestCore = "1.6.1"
 foundationAndroid = "1.7.5"
 graphicsShape = "1.0.1"
+playServicesAds = "25.5.0"
+ump = "4.0.0"
 
 [libraries]
 # Android App
@@ -91,6 +93,10 @@ workRuntimeKtx = { group = "androidx.work", name = "work-runtime-ktx", version.r
 
 # Kotlin
 serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization-json" }
+
+# Ads
+play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
+ump = { group = "com.google.android.ump", name = "user-messaging-platform", version.ref = "ump" }
 
 # Other
 aboutLibraries = { group = "com.mikepenz", name = "aboutlibraries-compose", version.ref = "aboutLibraries" }
