@@ -13,7 +13,7 @@ plugins {
 val admobAppId = "ca-app-pub-8136331239459607~3825484269"
 val admobBannerId = "ca-app-pub-8136331239459607/8582986927"
 val admobInterstitialId = "ca-app-pub-8136331239459607/8709437444"
-val admobRewardedId = ""
+val admobRewardedId = "ca-app-pub-8136331239459607/3457110761"
 
 android {
     namespace = "com.kaajjo.libresudoku"
