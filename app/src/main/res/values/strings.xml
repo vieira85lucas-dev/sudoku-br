@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">LibreSudoku</string>
+    <string name="app_name" translatable="false">Sudoku BR</string>
     <string name="nav_bar_statistics">Statistics</string>
     <string name="nav_bar_home">Home</string>
     <string name="nav_bar_more">More</string>
@@ -390,4 +390,9 @@
     <string name="generation_save_error_message">The puzzle is ready, but couldn’t be saved</string>
     <string name="generation_retry">Try again</string>
     <string name="generation_saved_progress">Puzzles already added to the folder will be kept</string>
+    <string name="about_upstream_title" translatable="false">LibreSudoku</string>
+    <string name="about_upstream_subtitle">Original project by kaajjo</string>
+    <string name="about_privacy_title">Privacy</string>
+    <string name="about_privacy_subtitle">Privacy policy</string>
+    <string name="about_license_notice">This app is free software licensed under the GNU GPL v3 and is based on LibreSudoku by kaajjo. The complete source code is available on GitHub.</string>
 </resources>

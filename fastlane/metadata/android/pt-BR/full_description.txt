@@ -1,0 +1,19 @@
+Jogue Sudoku do seu jeito. O Sudoku BR é um jogo de lógica gratuito, rápido e sem cadastro, totalmente em português.
+
+<b>O que você encontra:</b>
+• Tabuleiros 9x9, 6x6 e 12x12
+• 4 níveis de dificuldade, do iniciante ao especialista
+• Notas (lápis), desfazer, pausa, reiniciar e mostrar solução
+• Dois modos de entrada: escolher o número primeiro ou a célula primeiro
+• Verificação de erros pelas regras do jogo ou pela solução final
+• Estatísticas: melhores tempos, médias, sequência de vitórias e taxa de acerto
+• Partidas salvas: continue de onde parou, quando quiser
+• Muitas opções: apagar notas automaticamente, destacar números iguais, temas claro e escuro e mais
+• Tutoriais de técnicas para melhorar seu jogo
+• Crie seu próprio Sudoku ou importe de arquivo
+
+<b>Sem cadastro, sem conta.</b> Suas partidas ficam no seu aparelho.
+
+O aplicativo é gratuito e mantido com anúncios.
+
+O Sudoku BR é software livre (GPL-3.0), baseado no projeto LibreSudoku. Código-fonte: github.com/vieira85lucas-dev/sudoku-br

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">LibreSudoku</string>
+    <string name="app_name" translatable="false">Sudoku BR</string>
     <string name="nav_bar_statistics">Estatísticas</string>
     <string name="nav_bar_more">Mais</string>
     <string name="nav_bar_home">Início</string>
@@ -335,4 +335,9 @@
     <string name="theme_orange">Laranja</string>
     <string name="onboard_restore_backup">Restaurar backup</string>
     <string name="onboard_restore_backup_description">Você já tem um backup? Restaure-o agora</string>
+    <string name="about_upstream_title" translatable="false">LibreSudoku</string>
+    <string name="about_upstream_subtitle">Projeto original de kaajjo</string>
+    <string name="about_privacy_title">Privacidade</string>
+    <string name="about_privacy_subtitle">Política de privacidade</string>
+    <string name="about_license_notice">Este aplicativo é software livre licenciado sob a GNU GPL v3 e é baseado no LibreSudoku, de kaajjo. O código-fonte completo está disponível no GitHub.</string>
 </resources>
