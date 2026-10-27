@@ -32,7 +32,7 @@ coroutinesTest = "1.9.0"
 androidxTestCore = "1.6.1"
 foundationAndroid = "1.7.5"
 graphicsShape = "1.0.1"
-playServicesAds = "25.5.0"
+playServicesAds = "24.8.0"
 ump = "4.0.0"
 
 [libraries]
