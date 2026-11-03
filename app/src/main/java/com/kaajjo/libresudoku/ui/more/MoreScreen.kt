@@ -23,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.kaajjo.libresudoku.R
+import com.kaajjo.libresudoku.ads.PrivacyOptionsRow
 import com.kaajjo.libresudoku.destinations.AboutScreenDestination
 import com.kaajjo.libresudoku.destinations.BackupScreenDestination
 import com.kaajjo.libresudoku.destinations.FoldersScreenDestination
@@ -90,6 +91,7 @@ fun MoreScreen(
                 painter = painterResource(R.drawable.ic_outline_info_24),
                 onClick = { navigator.navigate(AboutScreenDestination()) }
             )
+            PrivacyOptionsRow()
         }
     }
 }
