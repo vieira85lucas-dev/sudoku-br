@@ -398,4 +398,9 @@
     <string name="hint_ad_title">Get a hint</string>
     <string name="hint_ad_text">Watch a short video to reveal this hint.</string>
     <string name="hint_ad_watch">Watch video</string>
+    <string name="remove_ads_title">Remove ads</string>
+    <string name="remove_ads_price">%1$s per week. Cancel anytime in Google Play.</string>
+    <string name="ads_removed_title">Ads removed</string>
+    <string name="ads_removed_manage">Manage subscription</string>
+    <string name="restore_purchase">Restore purchase</string>
 </resources>

@@ -30,6 +30,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.kaajjo.libresudoku.ads.AdsManager
 import com.kaajjo.libresudoku.ads.LocalAdsManager
+import com.kaajjo.libresudoku.billing.BillingManager
+import com.kaajjo.libresudoku.billing.LocalBillingManager
 import com.kaajjo.libresudoku.core.PreferencesConstants
 import com.kaajjo.libresudoku.core.utils.GlobalExceptionHandler
 import com.kaajjo.libresudoku.data.datastore.AppSettingsManager
@@ -64,6 +66,9 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var adsManager: AdsManager
 
+    @Inject
+    lateinit var billingManager: BillingManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -72,6 +77,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         adsManager.gatherConsent(this)
+        billingManager.connect()
 
         setContent {
             val mainViewModel: MainActivityViewModel = hiltViewModel()
@@ -146,7 +152,8 @@ class MainActivity : AppCompatActivity() {
                     }
                 CompositionLocalProvider(
                     LocalBoardColors provides boardColors,
-                    LocalAdsManager provides adsManager
+                    LocalAdsManager provides adsManager,
+                    LocalBillingManager provides billingManager
                 ) {
                     Scaffold(
                         bottomBar = {

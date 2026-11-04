@@ -34,6 +34,7 @@ foundationAndroid = "1.7.5"
 graphicsShape = "1.0.1"
 playServicesAds = "24.8.0"
 ump = "4.0.0"
+billing = "8.0.0"
 
 [libraries]
 # Android App
@@ -97,6 +98,7 @@ serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serializ
 # Ads
 play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "playServicesAds" }
 ump = { group = "com.google.android.ump", name = "user-messaging-platform", version.ref = "ump" }
+billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billing" }
 
 # Other
 aboutLibraries = { group = "com.mikepenz", name = "aboutlibraries-compose", version.ref = "aboutLibraries" }

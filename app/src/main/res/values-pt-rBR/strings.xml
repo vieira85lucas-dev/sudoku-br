@@ -343,4 +343,9 @@
     <string name="hint_ad_title">Ganhar uma dica</string>
     <string name="hint_ad_text">Assista a um vídeo curto para liberar esta dica.</string>
     <string name="hint_ad_watch">Assistir vídeo</string>
+    <string name="remove_ads_title">Remover anúncios</string>
+    <string name="remove_ads_price">%1$s por semana. Cancele quando quiser no Google Play.</string>
+    <string name="ads_removed_title">Anúncios removidos</string>
+    <string name="ads_removed_manage">Gerenciar assinatura</string>
+    <string name="restore_purchase">Restaurar compra</string>
 </resources>
