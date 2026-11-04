@@ -2,9 +2,7 @@
 
 *Última atualização: 27 de outubro de 2026*
 
-> **Rascunho:** substitua `[SEU E-MAIL DE CONTATO]` e o nome do responsável antes de publicar, e peça revisão jurídica.
-
-O Sudoku BR é um jogo de Sudoku gratuito, mantido por **[NOME DO RESPONSÁVEL]**. Este documento explica quais dados o aplicativo usa, conforme a Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018).
+O Sudoku BR é um jogo de Sudoku gratuito, mantido por **Lucas Vieira Teixeira Pinto**. Este documento explica quais dados o aplicativo usa, conforme a Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018).
 
 ## 1. Dados que ficam no seu aparelho
 
@@ -21,11 +19,11 @@ O aplicativo exibe anúncios fornecidos pelo **Google AdMob**. Para isso, o Goog
 
 Esses dados servem para exibir anúncios, limitar a repetição, medir resultados e prevenir fraudes. A coleta é feita pelo Google, nos termos da [Política de Privacidade do Google](https://policies.google.com/privacy) e de [como o Google usa dados de sites e apps parceiros](https://policies.google.com/technologies/partner-sites).
 
-Na primeira abertura, e quando a lei exigir, o aplicativo pede o seu **consentimento** para anúncios personalizados. Você pode recusar e continuar jogando com anúncios não personalizados, e pode rever sua escolha em *Mais > Privacidade*. Também é possível redefinir ou excluir o ID de publicidade nas configurações do Android (*Configurações > Google > Anúncios*).
+Quando exigido pela lei da sua região, o aplicativo mostra uma tela para você escolher o **consentimento** para anúncios personalizados. Você pode recusar e continuar jogando com anúncios não personalizados. Nesses casos, você pode rever sua escolha em *Mais > Privacidade*. Também é possível redefinir ou excluir o ID de publicidade nas configurações do Android (*Configurações > Google > Anúncios*).
 
 ## 3. Dados que não coletamos
 
-Não coletamos nome, e-mail, telefone, contatos, fotos, localização precisa nem dados de pagamento.
+Não coletamos nome, e-mail, telefone, contatos, fotos nem localização precisa. A assinatura opcional que remove os anúncios é cobrada e processada pelo **Google Play**; nós não recebemos nem guardamos dados de pagamento. A gestão e o cancelamento da assinatura são feitos na sua conta do Google Play.
 
 ## 4. Compartilhamento
 
@@ -37,7 +35,7 @@ O aplicativo não é direcionado a menores de 13 anos e não coleta dados de cri
 
 ## 6. Seus direitos (LGPD)
 
-Você pode pedir confirmação de tratamento, acesso, correção, eliminação e informações sobre compartilhamento, e revogar o consentimento a qualquer momento. Como não mantemos dados pessoais seus, para dados de anúncios o caminho principal são as configurações do Google e do Android citadas acima. Para qualquer outro pedido, escreva para **[SEU E-MAIL DE CONTATO]**.
+Você pode pedir confirmação de tratamento, acesso, correção, eliminação e informações sobre compartilhamento, e revogar o consentimento a qualquer momento. Como não mantemos dados pessoais seus, para dados de anúncios o caminho principal são as configurações do Google e do Android citadas acima. Para qualquer outro pedido, escreva para **lpinto172@gmail.com**.
 
 ## 7. Mudanças nesta política
 
