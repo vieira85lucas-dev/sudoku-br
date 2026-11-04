@@ -393,6 +393,7 @@ class GameViewModelTest {
         viewModel.sendEvent(GameUiEvent.AcceptSecondChance)
         runCurrent()
 
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
         listOf(7, 8, 9).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
         runCurrent()
 

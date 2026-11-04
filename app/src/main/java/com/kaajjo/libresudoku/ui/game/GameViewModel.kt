@@ -292,8 +292,12 @@ class GameViewModel @Inject constructor(
     private fun declineSecondChance() {
         if (!state.secondChanceDialog) return
         _uiState.update { it.copy(secondChanceDialog = false) }
-        finishGame(giveUp = true)
-        leaveScreen(GameUiSideEffect.NavigateBack)
+        // Fecha a tela so depois de gravar o resultado, senao o ViewModel pode ser descartado antes.
+        val saved = finishGame(giveUp = true)
+        viewModelScope.launch {
+            saved?.await()
+            effectChannel.send(GameUiSideEffect.NavigateBack)
+        }
     }
 
     private fun setMenuVisible(visible: Boolean) {
@@ -611,14 +615,14 @@ class GameViewModel @Inject constructor(
         state.gameBoard[row].indices.all { col -> state.gameBoard[row][col].value == state.solvedBoard[row][col].value }
     }
 
-    private fun finishGame(giveUp: Boolean) {
-        if (state.endGame) return
+    private fun finishGame(giveUp: Boolean): CompletableDeferred<Unit>? {
+        if (state.endGame) return null
         pauseTimer()
         cancelAdvancedHint()
         _uiState.update {
             it.copy(endGame = true, giveUp = giveUp, currCell = Cell(-1, -1), giveUpDialog = false, showMenu = false)
         }
-        queueSave(recordCompletion = !giveUp)
+        return queueSave(recordCompletion = !giveUp)
     }
 
     private fun startTimer() {
