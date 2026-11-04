@@ -284,7 +284,7 @@ class GameViewModel @Inject constructor(
 
     private fun acceptSecondChance() {
         if (!state.secondChanceDialog) return
-        _uiState.update { it.copy(secondChanceDialog = false, secondChanceUsed = true, mistakesCount = 0) }
+        _uiState.update { it.copy(secondChanceDialog = false, secondChancesUsed = it.secondChancesUsed + 1, mistakesCount = 0) }
         startTimer()
         queueSave()
     }
@@ -341,7 +341,8 @@ class GameViewModel @Inject constructor(
             when {
                 state.endGame || state.secondChanceDialog -> Unit
                 state.settings.mistakesLimit && state.mistakesCount >= PreferencesConstants.MISTAKES_LIMIT ->
-                    if (state.secondChanceUsed) finishGame(giveUp = true) else offerSecondChance()
+                    if (state.secondChancesUsed >= PreferencesConstants.MAX_SECOND_CHANCES) finishGame(giveUp = true)
+                    else offerSecondChance()
                 isCompleted() -> finishGame(giveUp = false)
                 else -> queueSave()
             }
@@ -583,6 +584,7 @@ class GameViewModel @Inject constructor(
     }
 
     private fun useHint() {
+        if (state.hintsUsed >= PreferencesConstants.MAX_HINTS_PER_GAME) return
         if (!selectedCellEditable()) return
         clearNotesAtCell()
         setValueCell(state.solvedBoard[state.currCell.row][state.currCell.col].value, countMistake = false)

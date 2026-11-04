@@ -3,6 +3,7 @@ package com.kaajjo.libresudoku.ui.game
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.kaajjo.libresudoku.core.Note
+import com.kaajjo.libresudoku.core.PreferencesConstants
 import com.kaajjo.libresudoku.core.qqwing.GameDifficulty
 import com.kaajjo.libresudoku.core.qqwing.GameType
 import com.kaajjo.libresudoku.core.qqwing.advanced_hint.AdvancedHintSettings
@@ -382,25 +383,48 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `the second chance is offered only once per game`() = runGameTest {
+    fun `the second chance is offered up to four times per game`() = runGameTest {
         stubSettings(
             GameSettings(inputMethod = 0, remainingUse = false, mistakesLimit = true, mistakesMethod = 2)
         )
         val viewModel = loadedGame()
-        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
-        listOf(3, 4, 6).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
-        runCurrent()
-        viewModel.sendEvent(GameUiEvent.AcceptSecondChance)
-        runCurrent()
+        repeat(PreferencesConstants.MAX_SECOND_CHANCES) {
+            viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+            listOf(3, 4, 6).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
+            runCurrent()
+            assertTrue(viewModel.uiState.value.secondChanceDialog)
+            viewModel.sendEvent(GameUiEvent.AcceptSecondChance)
+            runCurrent()
+            assertFalse(viewModel.uiState.value.endGame)
+        }
+        assertEquals(PreferencesConstants.MAX_SECOND_CHANCES, viewModel.uiState.value.secondChancesUsed)
 
         viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
-        listOf(7, 8, 9).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
+        listOf(3, 4, 6).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
         runCurrent()
 
         val state = viewModel.uiState.value
         assertFalse(state.secondChanceDialog)
         assertTrue(state.endGame)
         assertTrue(state.giveUp)
+    }
+
+    @Test
+    fun `hints are capped at three per game`() = runGameTest {
+        coEvery { boardRepository.get(BOARD_ID) } returns board(emptyCells = 5)
+        val viewModel = loadedGame()
+        repeat(4) { col ->
+            viewModel.sendEvent(GameUiEvent.CellTapped(0, col))
+            viewModel.sendEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint))
+            runCurrent()
+        }
+
+        val state = viewModel.uiState.value
+        assertEquals(PreferencesConstants.MAX_HINTS_PER_GAME, state.hintsUsed)
+        assertEquals(5, state.gameBoard[0][0].value)
+        assertEquals(3, state.gameBoard[0][1].value)
+        assertEquals(4, state.gameBoard[0][2].value)
+        assertEquals(0, state.gameBoard[0][3].value)
     }
 
     @Test

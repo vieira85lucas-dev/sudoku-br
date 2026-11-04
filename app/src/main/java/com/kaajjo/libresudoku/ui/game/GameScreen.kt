@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.PlayCircle
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -73,6 +74,8 @@ import com.kaajjo.libresudoku.R
 import com.kaajjo.libresudoku.core.Cell
 import com.kaajjo.libresudoku.ads.BannerAd
 import com.kaajjo.libresudoku.ads.LocalAdsManager
+import com.kaajjo.libresudoku.ads.adsRemovedState
+import com.kaajjo.libresudoku.ads.rewardedReadyState
 import com.kaajjo.libresudoku.core.PreferencesConstants
 import com.kaajjo.libresudoku.core.qqwing.GameType
 import com.kaajjo.libresudoku.core.qqwing.advanced_hint.AdvancedHintData
@@ -96,9 +99,6 @@ import com.kaajjo.libresudoku.ui.util.ReverseArrangement
 import com.kaajjo.libresudoku.ui.util.findActivity
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-
-/** Dicas gratuitas por partida; a partir da proxima, oferece um video premiado. */
-private const val FREE_HINTS_PER_GAME = 1
 
 @Destination(
     style = AnimatedNavigation::class,
@@ -457,26 +457,48 @@ private fun GameScreenContent(
     }
     if (uiState.secondChanceDialog) {
         val adsManager = LocalAdsManager.current
-        val activity = LocalContext.current.findActivity()
+        val context = LocalContext.current
+        val activity = context.findActivity()
+        val premium = adsRemovedState()
+        val videoReady = rewardedReadyState()
+        val canAccept = premium || videoReady
         val acceptChance = { onEvent(GameUiEvent.AcceptSecondChance) }
         AlertDialog(
             title = { Text(stringResource(R.string.second_chance_title)) },
-            text = { Text(stringResource(R.string.second_chance_text, PreferencesConstants.MISTAKES_LIMIT)) },
+            text = {
+                Column {
+                    Text(stringResource(R.string.second_chance_text, PreferencesConstants.MISTAKES_LIMIT))
+                    if (!canAccept) {
+                        Text(
+                            text = stringResource(R.string.second_chance_unavailable),
+                            modifier = Modifier.padding(top = 8.dp),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            },
             dismissButton = {
                 TextButton(onClick = { onEvent(GameUiEvent.DeclineSecondChance) }) {
                     Text(stringResource(R.string.second_chance_decline))
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
-                    // Sem video pronto (assinante, sem rede ou sem consentimento) a chance sai de graca.
-                    if (adsManager != null && activity != null && adsManager.isRewardedReady()) {
-                        adsManager.showRewarded(activity, onReward = acceptChance, onUnavailable = acceptChance)
-                    } else {
-                        acceptChance()
+                if (canAccept) {
+                    TextButton(onClick = {
+                        if (premium) {
+                            acceptChance()
+                        } else if (adsManager != null && activity != null) {
+                            adsManager.showRewarded(
+                                activity,
+                                onReward = acceptChance,
+                                onUnavailable = {
+                                    Toast.makeText(context, R.string.ad_unavailable, Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
+                    }) {
+                        Text(stringResource(R.string.second_chance_accept))
                     }
-                }) {
-                    Text(stringResource(R.string.second_chance_accept))
                 }
             },
             onDismissRequest = { },
@@ -521,7 +543,8 @@ private fun GameHintContent(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit
 @Composable
 private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
     val adsManager = LocalAdsManager.current
-    val activity = LocalContext.current.findActivity()
+    val context = LocalContext.current
+    val activity = context.findActivity()
     var showHintAdDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -555,12 +578,18 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
                     modifier = Modifier.weight(1f),
                     painter = painterResource(R.drawable.ic_lightbulb_stars_24),
                     onClick = {
-                        if (adsManager != null && activity != null &&
-                            uiState.hintsUsed >= FREE_HINTS_PER_GAME && adsManager.isRewardedReady()
-                        ) {
-                            showHintAdDialog = true
-                        } else {
-                            onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint))
+                        val premium = adsManager?.adsRemoved?.value == true
+                        when {
+                            uiState.hintsUsed >= PreferencesConstants.MAX_HINTS_PER_GAME ->
+                                Toast.makeText(
+                                    context,
+                                    context.getString(R.string.hint_limit_reached, PreferencesConstants.MAX_HINTS_PER_GAME),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            premium -> onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint))
+                            adsManager != null && activity != null && adsManager.isRewardedReady() ->
+                                showHintAdDialog = true
+                            else -> Toast.makeText(context, R.string.ad_unavailable, Toast.LENGTH_SHORT).show()
                         }
                     }
                 )
@@ -611,8 +640,13 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
                 TextButton(onClick = {
                     showHintAdDialog = false
                     if (adsManager != null && activity != null) {
-                        val giveHint = { onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint)) }
-                        adsManager.showRewarded(activity, onReward = giveHint, onUnavailable = giveHint)
+                        adsManager.showRewarded(
+                            activity,
+                            onReward = { onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint)) },
+                            onUnavailable = {
+                                Toast.makeText(context, R.string.ad_unavailable, Toast.LENGTH_SHORT).show()
+                            }
+                        )
                     }
                 }) {
                     Text(stringResource(R.string.hint_ad_watch))

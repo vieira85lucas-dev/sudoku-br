@@ -40,7 +40,7 @@ import com.kaajjo.libresudoku.data.database.model.Record
  * @property restartDialog Whether the restart confirmation dialog is visible.
  * @property giveUpDialog Whether the give-up confirmation dialog is visible.
  * @property secondChanceDialog Whether the second-chance offer is visible after reaching the mistake limit.
- * @property secondChanceUsed Whether the second chance was already accepted in this session.
+ * @property secondChancesUsed How many second chances were accepted in this session.
  * @property showMenu Whether the game actions menu is expanded.
  * @property showNotesMenu Whether the notes actions menu is expanded.
  * @property showUndoRedoMenu Whether the undo/redo menu is expanded.
@@ -79,7 +79,7 @@ data class GameUiState(
     val restartDialog: Boolean = false,
     val giveUpDialog: Boolean = false,
     val secondChanceDialog: Boolean = false,
-    val secondChanceUsed: Boolean = false,
+    val secondChancesUsed: Int = 0,
     val showMenu: Boolean = false,
     val showNotesMenu: Boolean = false,
     val showUndoRedoMenu: Boolean = false,
