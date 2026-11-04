@@ -134,7 +134,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navigator: Destinatio
     )
 
     val continuableGame = lastGame?.takeIf { !it.completed }
-    val onContinue = {
+    val onContinue: () -> Unit = {
         if (lastGames.size <= 1) {
             lastGame?.let {
                 navigator.navigate(GameScreenDestination(gameUid = it.uid, playedBefore = true))
