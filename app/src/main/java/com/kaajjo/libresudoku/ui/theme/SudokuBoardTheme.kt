@@ -9,39 +9,31 @@ import com.kaajjo.libresudoku.ui.theme.ColorUtils.harmonizeWithPrimary
 object BoardColors {
     inline val foregroundColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.onSurface.blend(
-            MaterialTheme.colorScheme.primary,
-            fraction = 0.65f
-        )
+        get() = MaterialTheme.colorScheme.onSurface
 
     inline val notesColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.onSurfaceVariant.blend(
-            MaterialTheme.colorScheme.secondary,
-            0.4f
-        )
+        get() = MaterialTheme.colorScheme.onSurfaceVariant
+
     inline val altForegroundColor: Color
-        @Composable
-        get() = MaterialTheme.colorScheme.onSurfaceVariant.blend(
-            MaterialTheme.colorScheme.secondary,
-            0.5f
-        ).copy(alpha = 0.85f)
-
-    inline val errorColor: Color
-        @Composable
-        get() = Color(230, 67, 83).harmonizeWithPrimary()
-
-    inline val highlightColor: Color
         @Composable
         get() = MaterialTheme.colorScheme.secondary
 
+    inline val errorColor: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.error
+
+    inline val highlightColor: Color
+        @Composable
+        get() = MaterialTheme.colorScheme.primary
+
     inline val thickLineColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.55f)
+        get() = MaterialTheme.colorScheme.outline
 
     inline val thinLineColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.25f)
+        get() = MaterialTheme.colorScheme.outline.copy(0.18f)
 }
 
 interface SudokuBoardColors {

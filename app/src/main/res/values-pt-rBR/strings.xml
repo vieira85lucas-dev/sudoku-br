@@ -355,4 +355,8 @@
     <string name="second_chance_unavailable">Nenhum vídeo disponível no momento. Verifique sua conexão.</string>
     <string name="hint_limit_reached">Você pode usar até %1$d dicas por partida.</string>
     <string name="ad_unavailable">Nenhum vídeo disponível no momento. Verifique sua conexão e tente de novo.</string>
+    <string name="home_headline_a">Um pequeno exercício </string>
+    <string name="home_headline_b">cerebral?</string>
+    <string name="home_in_progress">Em andamento</string>
+    <string name="home_filled_time">%1$d%% preenchido • %2$s</string>
 </resources>

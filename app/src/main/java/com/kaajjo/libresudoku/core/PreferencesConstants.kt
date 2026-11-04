@@ -26,7 +26,7 @@ class PreferencesConstants {
         const val DEFAULT_AUTO_BACKUPS_NUMBER = 3
         const val DEFAULT_ADVANCED_HINT = false
 
-        const val DEFAULT_DYNAMIC_COLORS = true
+        const val DEFAULT_DYNAMIC_COLORS = false
         const val DEFAULT_DARK_THEME = 0
         const val DEFAULT_AMOLED_BLACK = false
         const val DEFAULT_MONET_SUDOKU_BOARD = true

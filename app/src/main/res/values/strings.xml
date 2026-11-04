@@ -410,4 +410,8 @@
     <string name="second_chance_unavailable">No video available right now. Check your connection.</string>
     <string name="hint_limit_reached">You can use up to %1$d hints per game.</string>
     <string name="ad_unavailable">No video available right now. Check your connection and try again.</string>
+    <string name="home_headline_a">A quick mental </string>
+    <string name="home_headline_b">workout?</string>
+    <string name="home_in_progress">In progress</string>
+    <string name="home_filled_time">%1$d%% filled • %2$s</string>
 </resources>

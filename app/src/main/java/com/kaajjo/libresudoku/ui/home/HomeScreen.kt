@@ -70,8 +70,32 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.time.ZonedDateTime
 import kotlin.math.sqrt
 import kotlin.time.toKotlinDuration
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.rounded.Bolt
+import androidx.compose.material.icons.rounded.Eco
+import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.LocalFireDepartment
+import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.compose.material.icons.rounded.WorkspacePremium
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.sp
+import com.kaajjo.libresudoku.ui.theme.NeoButton
+import com.kaajjo.libresudoku.ui.theme.NeoCard
+import com.kaajjo.libresudoku.ui.theme.NeoChip
+import com.kaajjo.libresudoku.ui.theme.NeoColors
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Destination(style = AnimatedNavigation::class)
 @RootNavGraph(start = true)
 @Composable
@@ -109,58 +133,83 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navigator: Destinatio
         onCancel = viewModel.generation::cancel
     )
 
-    Scaffold { paddingValues ->
+    val continuableGame = lastGame?.takeIf { !it.completed }
+    val onContinue = {
+        if (lastGames.size <= 1) {
+            lastGame?.let {
+                navigator.navigate(GameScreenDestination(gameUid = it.uid, playedBefore = true))
+            }
+        } else {
+            lastGamesBottomSheet = true
+        }
+    }
+
+    Scaffold(containerColor = MaterialTheme.colorScheme.background) { paddingValues ->
         Column(
-                modifier = Modifier.padding(paddingValues).fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceAround
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp)
+                .padding(top = 16.dp, bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
+            HomeHeader()
+
             Text(
-                    text = stringResource(R.string.app_name),
-                    style = MaterialTheme.typography.headlineLarge
-            )
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                HorizontalPicker(
-                        text = stringResource(viewModel.selectedDifficulty.resName),
-                        onLeftClick = { viewModel.changeDifficulty(-1) },
-                        onRightClick = { viewModel.changeDifficulty(1) }
-                )
-                HorizontalPicker(
-                        text = stringResource(viewModel.selectedType.resName),
-                        onLeftClick = { viewModel.changeType(-1) },
-                        onRightClick = { viewModel.changeType(1) }
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                if (lastGame != null && !lastGame!!.completed) {
-                    Button(
-                            onClick = {
-                                if (lastGames.size <= 1) {
-                                    lastGame?.let {
-                                        navigator.navigate(
-                                                GameScreenDestination(
-                                                        gameUid = it.uid,
-                                                        playedBefore = true
-                                                )
-                                        )
-                                    }
-                                } else {
-                                    lastGamesBottomSheet = true
-                                }
-                            }
-                    ) { Text(stringResource(R.string.action_continue)) }
-                    FilledTonalButton(onClick = { continueGameDialog = true }) {
-                        Text(stringResource(R.string.action_play))
+                text = buildAnnotatedString {
+                    append(stringResource(R.string.home_headline_a))
+                    withStyle(SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
+                        append(stringResource(R.string.home_headline_b))
                     }
-                } else {
-                    Button(
-                            onClick = {
-                                viewModel.startGame()
-                            }
-                    ) { Text(stringResource(R.string.action_play)) }
+                },
+                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp, lineHeight = 38.sp)
+            )
+
+            if (continuableGame != null) {
+                val lastBoard = lastGames.entries.firstOrNull { it.key.uid == continuableGame.uid }?.value
+                ContinueCard(
+                    title = lastBoard?.let {
+                        "${stringResource(it.difficulty.resName)} ${stringResource(it.type.resName)}"
+                    } ?: stringResource(R.string.action_continue),
+                    percent = filledPercent(continuableGame.currentBoard),
+                    time = continuableGame.timer.toKotlinDuration().toFormattedString(),
+                    onClick = onContinue
+                )
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text(
+                    text = stringResource(R.string.new_game),
+                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp)
+                )
+                DifficultyGrid(
+                    difficulties = viewModel.difficulties,
+                    selected = viewModel.selectedDifficulty,
+                    onSelect = { viewModel.selectedDifficulty = it }
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    viewModel.types.forEach { type ->
+                        NeoChip(
+                            text = stringResource(type.resName),
+                            selected = viewModel.selectedType == type,
+                            onClick = { viewModel.selectedType = type }
+                        )
+                    }
                 }
             }
+
+            NeoButton(
+                text = stringResource(R.string.action_play),
+                onClick = {
+                    if (continuableGame != null) continueGameDialog = true else viewModel.startGame()
+                },
+                modifier = Modifier.fillMaxWidth(),
+                color = NeoColors.Lavender
+            )
         }
 
         if (continueGameDialog) {
@@ -223,6 +272,172 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navigator: Destinatio
             }
         }
     }
+}
+
+@Composable
+private fun HomeHeader() {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        NeoCard(
+            modifier = Modifier.size(44.dp),
+            color = NeoColors.Lavender,
+            shape = RoundedCornerShape(16.dp),
+            shadow = 2.dp
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.GridView,
+                contentDescription = null,
+                tint = NeoColors.Charcoal,
+                modifier = Modifier.align(Alignment.Center).size(24.dp)
+            )
+        }
+        Spacer(Modifier.width(12.dp))
+        Text(
+            text = stringResource(R.string.app_name),
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp)
+        )
+    }
+}
+
+@Composable
+private fun ContinueCard(title: String, percent: Int, time: String, onClick: () -> Unit) {
+    NeoCard(
+        modifier = Modifier.fillMaxWidth(),
+        color = NeoColors.Mint,
+        shape = RoundedCornerShape(28.dp),
+        onClick = onClick
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = stringResource(R.string.home_in_progress).uppercase(),
+                modifier = Modifier
+                    .background(Color.White, RoundedCornerShape(50))
+                    .border(1.dp, NeoColors.Charcoal, RoundedCornerShape(50))
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                color = NeoColors.Charcoal,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 1.sp
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = title,
+                color = NeoColors.Charcoal,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
+            Text(
+                text = stringResource(R.string.home_filled_time, percent, time),
+                color = NeoColors.Charcoal.copy(alpha = 0.8f),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(Modifier.height(16.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(12.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(Color.White.copy(alpha = 0.45f))
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(percent / 100f)
+                            .height(12.dp)
+                            .background(NeoColors.Charcoal, RoundedCornerShape(50))
+                    )
+                }
+                Spacer(Modifier.width(16.dp))
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(NeoColors.Charcoal, RoundedCornerShape(16.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.PlayArrow,
+                        contentDescription = stringResource(R.string.action_continue),
+                        tint = Color.White,
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DifficultyGrid(
+    difficulties: List<GameDifficulty>,
+    selected: GameDifficulty,
+    onSelect: (GameDifficulty) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        difficulties.chunked(2).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                row.forEach { difficulty ->
+                    val style = difficultyStyle(difficulty)
+                    DifficultyTile(
+                        label = stringResource(difficulty.resName),
+                        icon = style.first,
+                        accent = style.second,
+                        selected = difficulty == selected,
+                        onClick = { onSelect(difficulty) },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (row.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+private fun difficultyStyle(difficulty: GameDifficulty): Pair<ImageVector, Color> = when (difficulty) {
+    GameDifficulty.Simple, GameDifficulty.Easy -> Icons.Rounded.Eco to NeoColors.Mint
+    GameDifficulty.Moderate -> Icons.Rounded.Bolt to NeoColors.Yellow
+    GameDifficulty.Hard -> Icons.Rounded.LocalFireDepartment to NeoColors.Coral
+    else -> Icons.Rounded.WorkspacePremium to NeoColors.Lavender
+}
+
+@Composable
+private fun DifficultyTile(
+    label: String,
+    icon: ImageVector,
+    accent: Color,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    NeoCard(
+        modifier = modifier,
+        color = if (selected) accent.copy(alpha = 0.35f) else MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(24.dp),
+        shadow = if (selected) 4.dp else 0.dp,
+        onClick = onClick
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(accent, CircleShape)
+                    .border(2.dp, NeoColors.Charcoal, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(imageVector = icon, contentDescription = null, tint = NeoColors.Charcoal)
+            }
+            Spacer(Modifier.height(10.dp))
+            Text(text = label, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+        }
+    }
+}
+
+/** Percentual de casas preenchidas (as dadas contam), a partir do tabuleiro salvo. */
+private fun filledPercent(board: String): Int {
+    if (board.isEmpty()) return 0
+    return board.count { it != '0' && it != '.' } * 100 / board.length
 }
 
 @Composable

@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         setContent {
             val mainViewModel: MainActivityViewModel = hiltViewModel()
 
-            val dynamicColors by mainViewModel.dc.collectAsStateWithLifecycle(isSystemInDarkTheme())
+            val dynamicColors by mainViewModel.dc.collectAsStateWithLifecycle(PreferencesConstants.DEFAULT_DYNAMIC_COLORS)
             val darkTheme by mainViewModel.darkTheme.collectAsStateWithLifecycle(PreferencesConstants.DEFAULT_DARK_THEME)
             val amoledBlack by mainViewModel.amoledBlack.collectAsStateWithLifecycle(PreferencesConstants.DEFAULT_AMOLED_BLACK)
             val firstLaunch by mainViewModel.firstLaunch.collectAsStateWithLifecycle(false)

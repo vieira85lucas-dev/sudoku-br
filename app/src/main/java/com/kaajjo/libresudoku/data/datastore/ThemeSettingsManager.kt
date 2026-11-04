@@ -53,7 +53,7 @@ class ThemeSettingsManager @Inject constructor(@ApplicationContext context: Cont
 
     val dynamicColors = dataStore.data.map { preferences ->
         // return dynamic theme true only if an android version >= 12
-        preferences[dynamicColorsKey] ?: (SDK_INT >= VERSION_CODES.S)
+        preferences[dynamicColorsKey] ?: PreferencesConstants.DEFAULT_DYNAMIC_COLORS
     }
 
     suspend fun setDarkTheme(value: Int) {

@@ -40,14 +40,14 @@ class HomeViewModel
 
     var insertedBoardUid = -1L
 
-    private val difficulties = listOf(
+    val difficulties = listOf(
         GameDifficulty.Easy,
         GameDifficulty.Moderate,
         GameDifficulty.Hard,
         GameDifficulty.Challenge,
     )
 
-    private val types = listOf(
+    val types = listOf(
         GameType.Default9x9,
         GameType.Default6x6,
         GameType.Default12x12,
