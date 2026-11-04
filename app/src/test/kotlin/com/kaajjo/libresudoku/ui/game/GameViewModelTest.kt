@@ -376,7 +376,7 @@ class GameViewModelTest {
 
         val resumed = viewModel.uiState.value
         assertFalse(resumed.secondChanceDialog)
-        assertTrue(resumed.secondChanceUsed)
+        assertEquals(1, resumed.secondChancesUsed)
         assertEquals(0, resumed.mistakesCount)
         assertFalse(resumed.endGame)
         assertTrue(resumed.gamePlaying)
