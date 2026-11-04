@@ -42,6 +42,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
@@ -69,6 +70,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.flowWithLifecycle
 import com.kaajjo.libresudoku.R
 import com.kaajjo.libresudoku.core.Cell
+import com.kaajjo.libresudoku.ads.BannerAd
+import com.kaajjo.libresudoku.ads.LocalAdsManager
 import com.kaajjo.libresudoku.core.PreferencesConstants
 import com.kaajjo.libresudoku.core.qqwing.GameType
 import com.kaajjo.libresudoku.core.qqwing.advanced_hint.AdvancedHintData
@@ -89,8 +92,12 @@ import com.kaajjo.libresudoku.ui.game.models.GameUiSideEffect
 import com.kaajjo.libresudoku.ui.game.models.GameUiState
 import com.kaajjo.libresudoku.ui.onboarding.FirstGameDialog
 import com.kaajjo.libresudoku.ui.util.ReverseArrangement
+import com.kaajjo.libresudoku.ui.util.findActivity
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+
+/** Dicas gratuitas por partida; a partir da proxima, oferece um video premiado. */
+private const val FREE_HINTS_PER_GAME = 1
 
 @Destination(
     style = AnimatedNavigation::class,
@@ -106,6 +113,8 @@ fun GameScreen(
     val localView = LocalView.current
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
+    val adsManager = LocalAdsManager.current
+    val currentUiState by rememberUpdatedState(uiState)
     var restartButtonAngle by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(viewModel, lifecycleOwner, navigator, clipboardManager, context, localView) {
@@ -113,7 +122,14 @@ fun GameScreen(
             .flowWithLifecycle(lifecycleOwner.lifecycle, Lifecycle.State.STARTED)
             .collect { effect ->
                 when (effect) {
-                    GameUiSideEffect.NavigateBack -> navigator.popBackStack()
+                    GameUiSideEffect.NavigateBack -> {
+                        val activity = context.findActivity()
+                        if (currentUiState.endGame && activity != null && adsManager != null) {
+                            adsManager.onGameFinished(activity) { navigator.popBackStack() }
+                        } else {
+                            navigator.popBackStack()
+                        }
+                    }
                     GameUiSideEffect.OpenSettings -> navigator.navigate(
                         SettingsCategoriesScreenDestination(launchedFromGame = true)
                     )
@@ -275,7 +291,8 @@ private fun GameScreenContent(
                     }
                 }
             )
-        }
+        },
+        bottomBar = { BannerAd() }
     ) { scaffoldPaddings ->
         if (uiState.isLoading || uiState.loadError) {
             Box(
@@ -474,6 +491,10 @@ private fun GameHintContent(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit
 
 @Composable
 private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
+    val adsManager = LocalAdsManager.current
+    val activity = LocalContext.current.findActivity()
+    var showHintAdDialog by remember { mutableStateOf(false) }
+
     Column(
         verticalArrangement = if (uiState.settings.funKeyboardOverNum) ReverseArrangement else Arrangement.Top
     ) {
@@ -504,7 +525,15 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
                 ToolbarItem(
                     modifier = Modifier.weight(1f),
                     painter = painterResource(R.drawable.ic_lightbulb_stars_24),
-                    onClick = { onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint)) }
+                    onClick = {
+                        if (adsManager != null && activity != null &&
+                            uiState.hintsUsed >= FREE_HINTS_PER_GAME && adsManager.isRewardedReady()
+                        ) {
+                            showHintAdDialog = true
+                        } else {
+                            onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint))
+                        }
+                    }
                 )
             }
             Box(modifier = Modifier.weight(1f)) {
@@ -538,6 +567,30 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
                 )
             }
         }
+    }
+
+    if (showHintAdDialog) {
+        AlertDialog(
+            title = { Text(stringResource(R.string.hint_ad_title)) },
+            text = { Text(stringResource(R.string.hint_ad_text)) },
+            dismissButton = {
+                TextButton(onClick = { showHintAdDialog = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showHintAdDialog = false
+                    if (adsManager != null && activity != null) {
+                        val giveHint = { onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint)) }
+                        adsManager.showRewarded(activity, onReward = giveHint, onUnavailable = giveHint)
+                    }
+                }) {
+                    Text(stringResource(R.string.hint_ad_watch))
+                }
+            },
+            onDismissRequest = { showHintAdDialog = false }
+        )
     }
 }
 

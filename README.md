@@ -1,92 +1,48 @@
+# Sudoku BR
 
-<div align="center">
+Aplicativo de Sudoku para Android, em português, com tabuleiros 6x6, 9x9 e 12x12, quatro níveis de dificuldade, notas, desfazer, estatísticas e partidas salvas. Gratuito, com anúncios.
 
-# Libre-Sudoku
-<div>
-  <img src="https://m3-markdown-badges.vercel.app/stars/4/2/kaajjo/libresudoku">
-  <img src="https://m3-markdown-badges.vercel.app/issues/4/2/kaajjo/libresudoku">
-</div>
-<div>
-  <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/Android/android1.svg">
-  <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/Kotlin/kotlin1.svg">
-  <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/Weblate/weblate1.svg">
-  <img src="https://ziadoua.github.io/m3-Markdown-Badges/badges/LicenceGPLv3/licencegplv31.svg">
-</div>
+## Origem e licença
 
+Este projeto é um **fork do [LibreSudoku](https://github.com/kaajjo/Libre-Sudoku)**, criado por kaajjo e colaboradores, e é distribuído sob a **GNU General Public License v3.0**. Veja o arquivo [LICENSE](LICENSE). O histórico de commits do projeto original foi mantido.
 
-<div>
-  <a href="https://f-droid.org/en/packages/com.kaajjo.libresudoku/">
-    <img src="https://f-droid.org/badge/get-it-on.png" height="100">
-  </a>
-  <a href="https://www.openapk.net/libresudoku/com.kaajjo.libresudoku/">
-    <img src="https://www.openapk.net/images/openapk-badge.png" height=100>
-  </a>
-  <a href="https://www.androidfreeware.net/download-libresudoku-apk.html">
-    <img src="https://www.androidfreeware.net/images/androidfreeware-badge.png" height=100>
-  </a>
-  <a href="https://www.rustore.ru/catalog/app/com.kaajjo.libresudoku">
-    <img src="https://www.rustore.ru/help/icons/logo-color-dark.svg" height=90>
-</div>
+Como a GPL-3.0 exige, o código-fonte completo de cada versão publicada deste aplicativo fica disponível neste repositório, e qualquer pessoa pode estudá-lo, modificá-lo e redistribuí-lo nos termos da mesma licença.
 
-[![F-Droid](https://img.shields.io/f-droid/v/com.kaajjo.libresudoku?color=green&label=F-Droid&logo=f-droid)](https://f-droid.org/en/packages/com.kaajjo.libresudoku)
-[![GitHub Latest Release](https://img.shields.io/github/v/release/kaajjo/libre-sudoku?label=Release&logo=GitHub)](https://github.com/kaajjo/Libre-Sudoku/releases/latest)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/kaajjo/libresudoku/total?style=flat&logo=GitHub&logoColor=FFFFFF&label=Downloads&link=https%3A%2F%2Fgithub.com%2Fkaajjo%2FLibre-Sudoku%2Freleases)
-[![Translation status](https://hosted.weblate.org/widgets/libresudoku/-/svg-badge.svg)](https://hosted.weblate.org/engage/libresudoku/)
+### O que foi alterado em relação ao original
 
-</div>
+- Nome do aplicativo, identificador do pacote (`dev.vieira85lucas.sudokubr`) e numeração de versões.
+- Tela "Sobre": removidos os dados de doação e os links de comunidade do autor original; adicionados o crédito ao projeto original, a política de privacidade e o aviso de licença.
+- Tela de erro: removido o link para o canal do autor original.
+- Textos da loja e documentação em português do Brasil.
+- Inclusão de anúncios (Google AdMob) com tela de consentimento. *(em andamento)*
 
-![LibreSudoku Banner](https://github.com/kaajjo/Libre-Sudoku/assets/87094439/20b710de-4074-4e2e-8b94-04b55507874f")
-Open Source sudoku application designed to be as user friendly and customizable as possible \
-Built with [Jetpack Compose](https://developer.android.com/jetpack/compose) and [Material3](https://m3.material.io/)
+O pacote de código Kotlin (`com.kaajjo.libresudoku`) foi mantido de propósito, para facilitar a sincronização com o projeto original.
 
+## Privacidade
 
-## 📱 Screenshots 
-<div>
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.jpg" width="25%" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.jpg" width="25%" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.jpg" width="25%" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.jpg" width="25%" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.jpg" width="25%" />
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.jpg" width="25%" />
-</div>
+A política de privacidade está em [docs/privacy-policy.md](docs/privacy-policy.md).
 
-## 💡 Features
-- 6x6, 9x9, and 12x12 sudoku boards with 4 difficulty levels
-- Countless customization options
-- Advanced statistics and game history - previous games list, best and average times for each mode, win streak and percentage
-- Saves. You can continue any unfinished game and start a new one whenever you want
-- Tutorials for playing techniques
-- Create your own sudoku puzzles!
-- Import custom sudoku files
+## Compilar
 
-## Updates
-Install updates through your app store or download a new release from GitHub.
-The app does not check for updates, download APKs, or request internet access.
+Requisitos: JDK 17 e Android SDK 35.
 
-## Future plans
-- Better hint system (explain the next move instead of just revealing the value)
-- Complete set of sudoku technique tutorials
-- Custom sudoku from gallery or camera picture
-- More customization options (customize anything that can be customized🔥)
+```bash
+./gradlew :app:assembleDebug     # APK de debug
+./gradlew :app:testDebugUnitTest # testes unitários
+```
 
-## Generator and logical rating
+Para publicar na Play Store é preciso um keystore próprio de assinatura. Nunca coloque o keystore ou as senhas no repositório; o workflow em `.github/workflows` lê tudo de *secrets*.
 
-The classic generator uses DLX uniqueness checks and a versioned logical rating policy.
+## Sincronizar com o projeto original
 
-## 🌍 Translation
-You can help to translate LibreSudoku into your language at [Hosted Weblate](https://hosted.weblate.org/engage/libresudoku/)\
-[![Translation status](https://hosted.weblate.org/widgets/libresudoku/-/multi-auto.svg)](https://hosted.weblate.org/engage/libresudoku/)
+```bash
+git remote add upstream https://github.com/kaajjo/Libre-Sudoku.git
+git fetch upstream
+git merge upstream/main
+```
 
-## Credits
-This project uses a modified version of [QQWing](https://github.com/stephenostermiller/qqwing) - sudoku puzzle generator and solver\
+## Créditos
 
-† [Tachiyomi](https://github.com/tachiyomiorg/tachiyomi)
-
-[Seal](https://github.com/JunkFood02/Seal)
-
-[Open Sudoku](https://gitlab.com/opensudoku/opensudoku)
-
-[Privacy Friendly Sudoku](https://github.com/SecUSo/privacy-friendly-sudoku)
-
-## License
-[![](https://img.shields.io/github/license/kaajjo/libre-sudoku)](https://github.com/kaajjo/libre-sudoku/blob/main/LICENSE)
+- [LibreSudoku](https://github.com/kaajjo/Libre-Sudoku) — kaajjo e colaboradores (GPL-3.0)
+- QQWing (versão modificada) — geração e resolução de puzzles
+- Demais bibliotecas listadas em *Mais > Sobre > Licenças*

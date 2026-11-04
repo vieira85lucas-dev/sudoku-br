@@ -8,16 +8,31 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
+// IDs do AdMob. Nao sao segredos (vao dentro do APK). O App ID e o mesmo em todos os builds;
+// os IDs de bloco abaixo so valem no release, o debug usa sempre os blocos de teste do Google.
+val admobAppId = "ca-app-pub-8136331239459607~3825484269"
+val admobBannerId = "ca-app-pub-8136331239459607/8582986927"
+val admobInterstitialId = "ca-app-pub-8136331239459607/8709437444"
+val admobRewardedId = "ca-app-pub-8136331239459607/3457110761"
+
+// Blocos de teste do Google. O debug sempre os usa; o release so com -PtestAds=true (teste fechado).
+val testBannerId = "ca-app-pub-3940256099942544/9214589741"
+val testInterstitialId = "ca-app-pub-3940256099942544/1033173712"
+val testRewardedId = "ca-app-pub-3940256099942544/5224354917"
+val useTestAds = providers.gradleProperty("testAds").orNull == "true"
+// A Play exige versionCode crescente a cada envio; o CI passa -PversionCode=<numero da execucao>.
+val appVersionCode = providers.gradleProperty("versionCode").orNull?.toIntOrNull() ?: 1
+
 android {
     namespace = "com.kaajjo.libresudoku"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.kaajjo.libresudoku"
+        applicationId = "dev.vieira85lucas.sudokubr"
         minSdk = 26
         targetSdk = 35
-        versionCode = 22
-        versionName = "2.0.2"
+        versionCode = appVersionCode
+        versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         vectorDrawables {
@@ -27,6 +42,8 @@ android {
         ksp {
             arg("room.schemaLocation", "${projectDir}/schemas")
         }
+
+        manifestPlaceholders["admobAppId"] = admobAppId
     }
 
     // F-Droid
@@ -36,7 +53,15 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"$testBannerId\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"$testInterstitialId\"")
+            buildConfigField("String", "ADMOB_REWARDED_ID", "\"$testRewardedId\"")
+        }
         release {
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"${if (useTestAds) testBannerId else admobBannerId}\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"${if (useTestAds) testInterstitialId else admobInterstitialId}\"")
+            buildConfigField("String", "ADMOB_REWARDED_ID", "\"${if (useTestAds) testRewardedId else admobRewardedId}\"")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
@@ -60,6 +85,15 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+}
+
+// Impede publicar um release com IDs de bloco em branco (anuncios nao carregariam).
+tasks.matching { it.name == "preReleaseBuild" }.configureEach {
+    doFirst {
+        check(listOf(admobBannerId, admobInterstitialId, admobRewardedId).all { it.isNotBlank() }) {
+            "Preencha admobBannerId, admobInterstitialId e admobRewardedId em app/build.gradle.kts antes do build de release."
         }
     }
 }
@@ -123,5 +157,9 @@ dependencies {
     ksp(libs.hilt.common.compiler)
     ksp(libs.hilt.work)
     implementation(libs.materialKolor)
+
+    implementation(libs.play.services.ads)
+    implementation(libs.ump)
+    implementation(libs.billing.ktx)
 
 }
