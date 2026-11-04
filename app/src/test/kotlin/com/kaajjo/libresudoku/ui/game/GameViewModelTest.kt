@@ -3,6 +3,7 @@ package com.kaajjo.libresudoku.ui.game
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.kaajjo.libresudoku.core.Note
+import com.kaajjo.libresudoku.core.PreferencesConstants
 import com.kaajjo.libresudoku.core.qqwing.GameDifficulty
 import com.kaajjo.libresudoku.core.qqwing.GameType
 import com.kaajjo.libresudoku.core.qqwing.advanced_hint.AdvancedHintSettings
@@ -339,6 +340,13 @@ class GameViewModelTest {
 
         assertEquals(3, viewModel.uiState.value.mistakesCount)
         assertEquals(6, viewModel.uiState.value.gameBoard[0][0].value)
+        assertTrue(viewModel.uiState.value.secondChanceDialog)
+        assertFalse(viewModel.uiState.value.endGame)
+
+        viewModel.sendEvent(GameUiEvent.DeclineSecondChance)
+        runCurrent()
+
+        assertFalse(viewModel.uiState.value.secondChanceDialog)
         assertTrue(viewModel.uiState.value.endGame)
         assertTrue(viewModel.uiState.value.giveUp)
         assertFalse(viewModel.uiState.value.gamePlaying)
@@ -349,6 +357,74 @@ class GameViewModelTest {
         assertEquals(false, persistedGame?.canContinue)
         assertEquals(1, savedGames.count { it.completed })
         coVerify(exactly = 0) { recordRepository.insert(any<Record>()) }
+    }
+
+    @Test
+    fun `accepting the second chance clears mistakes and resumes play`() = runGameTest {
+        stubSettings(
+            GameSettings(inputMethod = 0, remainingUse = false, mistakesLimit = true, mistakesMethod = 2)
+        )
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        listOf(3, 4, 6).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
+        runCurrent()
+        assertTrue(viewModel.uiState.value.secondChanceDialog)
+        assertFalse(viewModel.uiState.value.gamePlaying)
+
+        viewModel.sendEvent(GameUiEvent.AcceptSecondChance)
+        runCurrent()
+
+        val resumed = viewModel.uiState.value
+        assertFalse(resumed.secondChanceDialog)
+        assertEquals(1, resumed.secondChancesUsed)
+        assertEquals(0, resumed.mistakesCount)
+        assertFalse(resumed.endGame)
+        assertTrue(resumed.gamePlaying)
+    }
+
+    @Test
+    fun `the second chance is offered up to four times per game`() = runGameTest {
+        stubSettings(
+            GameSettings(inputMethod = 0, remainingUse = false, mistakesLimit = true, mistakesMethod = 2)
+        )
+        val viewModel = loadedGame()
+        repeat(PreferencesConstants.MAX_SECOND_CHANCES) {
+            viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+            listOf(3, 4, 6).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
+            runCurrent()
+            assertTrue(viewModel.uiState.value.secondChanceDialog)
+            viewModel.sendEvent(GameUiEvent.AcceptSecondChance)
+            runCurrent()
+            assertFalse(viewModel.uiState.value.endGame)
+        }
+        assertEquals(PreferencesConstants.MAX_SECOND_CHANCES, viewModel.uiState.value.secondChancesUsed)
+
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        listOf(3, 4, 6).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
+        runCurrent()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.secondChanceDialog)
+        assertTrue(state.endGame)
+        assertTrue(state.giveUp)
+    }
+
+    @Test
+    fun `hints are capped at three per game`() = runGameTest {
+        coEvery { boardRepository.get(BOARD_ID) } returns board(emptyCells = 5)
+        val viewModel = loadedGame()
+        repeat(4) { col ->
+            viewModel.sendEvent(GameUiEvent.CellTapped(0, col))
+            viewModel.sendEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint))
+            runCurrent()
+        }
+
+        val state = viewModel.uiState.value
+        assertEquals(PreferencesConstants.MAX_HINTS_PER_GAME, state.hintsUsed)
+        assertEquals(5, state.gameBoard[0][0].value)
+        assertEquals(3, state.gameBoard[0][1].value)
+        assertEquals(4, state.gameBoard[0][2].value)
+        assertEquals(0, state.gameBoard[0][3].value)
     }
 
     @Test

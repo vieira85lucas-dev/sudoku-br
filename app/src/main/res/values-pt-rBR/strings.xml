@@ -348,4 +348,11 @@
     <string name="ads_removed_title">Anúncios removidos</string>
     <string name="ads_removed_manage">Gerenciar assinatura</string>
     <string name="restore_purchase">Restaurar compra</string>
+    <string name="second_chance_title">Fim de jogo</string>
+    <string name="second_chance_text">Você cometeu %1$d erros e perdeu esta partida. Quer uma segunda chance?</string>
+    <string name="second_chance_accept">Segunda chance</string>
+    <string name="second_chance_decline">Novo jogo</string>
+    <string name="second_chance_unavailable">Nenhum vídeo disponível no momento. Verifique sua conexão.</string>
+    <string name="hint_limit_reached">Você pode usar até %1$d dicas por partida.</string>
+    <string name="ad_unavailable">Nenhum vídeo disponível no momento. Verifique sua conexão e tente de novo.</string>
 </resources>

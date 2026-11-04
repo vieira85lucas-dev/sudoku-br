@@ -403,4 +403,11 @@
     <string name="ads_removed_title">Ads removed</string>
     <string name="ads_removed_manage">Manage subscription</string>
     <string name="restore_purchase">Restore purchase</string>
+    <string name="second_chance_title">Game over</string>
+    <string name="second_chance_text">You made %1$d mistakes and lost this game. Want a second chance?</string>
+    <string name="second_chance_accept">Second chance</string>
+    <string name="second_chance_decline">New game</string>
+    <string name="second_chance_unavailable">No video available right now. Check your connection.</string>
+    <string name="hint_limit_reached">You can use up to %1$d hints per game.</string>
+    <string name="ad_unavailable">No video available right now. Check your connection and try again.</string>
 </resources>

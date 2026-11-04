@@ -48,9 +48,13 @@ class AdsManager @Inject constructor(
     private val _canRequestAds = MutableStateFlow(false)
     private val _adsRemoved = MutableStateFlow(false)
     private val _privacyOptionsRequired = MutableStateFlow(false)
+    private val _rewardedReady = MutableStateFlow(false)
 
     /** Verdadeiro quando o usuario pagou para remover os anuncios. */
     val adsRemoved: StateFlow<Boolean> = _adsRemoved.asStateFlow()
+
+    /** Verdadeiro quando ha um video premiado carregado e pronto para exibir. */
+    val rewardedReady: StateFlow<Boolean> = _rewardedReady.asStateFlow()
 
     /** Verdadeiro quando o app precisa oferecer o botao "Opcoes de privacidade". */
     val privacyOptionsRequired: StateFlow<Boolean> = _privacyOptionsRequired.asStateFlow()
@@ -62,6 +66,10 @@ class AdsManager @Inject constructor(
     private var interstitial: InterstitialAd? = null
     private var interstitialLoading = false
     private var rewarded: RewardedAd? = null
+        set(value) {
+            field = value
+            _rewardedReady.value = value != null
+        }
     private var rewardedLoading = false
     private var lastInterstitialShownAt = 0L
     private var gamesSinceInterstitial = 0

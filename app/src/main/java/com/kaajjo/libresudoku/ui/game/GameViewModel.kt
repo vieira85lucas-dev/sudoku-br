@@ -179,6 +179,8 @@ class GameViewModel @Inject constructor(
             GameUiEvent.ShowGiveUpDialog -> showGiveUpDialog()
             GameUiEvent.DismissGiveUpDialog -> dismissGiveUpDialog()
             GameUiEvent.ConfirmGiveUp -> confirmGiveUp()
+            GameUiEvent.AcceptSecondChance -> acceptSecondChance()
+            GameUiEvent.DeclineSecondChance -> declineSecondChance()
             is GameUiEvent.SetMenuVisible -> setMenuVisible(event.visible)
             is GameUiEvent.SetNotesMenuVisible -> setNotesMenuVisible(event.visible)
             is GameUiEvent.SetUndoRedoMenuVisible -> setUndoRedoMenuVisible(event.visible)
@@ -273,6 +275,31 @@ class GameViewModel @Inject constructor(
         if (state.giveUpDialog) finishGame(giveUp = true)
     }
 
+    private fun offerSecondChance() {
+        pauseTimer()
+        cancelAdvancedHint()
+        _uiState.update { it.copy(secondChanceDialog = true, currCell = Cell(-1, -1)) }
+        queueSave()
+    }
+
+    private fun acceptSecondChance() {
+        if (!state.secondChanceDialog) return
+        _uiState.update { it.copy(secondChanceDialog = false, secondChancesUsed = it.secondChancesUsed + 1, mistakesCount = 0) }
+        startTimer()
+        queueSave()
+    }
+
+    private fun declineSecondChance() {
+        if (!state.secondChanceDialog) return
+        _uiState.update { it.copy(secondChanceDialog = false) }
+        // Fecha a tela so depois de gravar o resultado, senao o ViewModel pode ser descartado antes.
+        val saved = finishGame(giveUp = true)
+        viewModelScope.launch {
+            saved?.await()
+            effectChannel.send(GameUiSideEffect.NavigateBack)
+        }
+    }
+
     private fun setMenuVisible(visible: Boolean) {
         _uiState.update { it.copy(showMenu = visible) }
     }
@@ -312,9 +339,10 @@ class GameViewModel @Inject constructor(
         if (previous.gameBoard != state.gameBoard || previous.notes != state.notes) {
             cancelAdvancedHint()
             when {
-                state.endGame -> Unit
+                state.endGame || state.secondChanceDialog -> Unit
                 state.settings.mistakesLimit && state.mistakesCount >= PreferencesConstants.MISTAKES_LIMIT ->
-                    finishGame(giveUp = true)
+                    if (state.secondChancesUsed >= PreferencesConstants.MAX_SECOND_CHANCES) finishGame(giveUp = true)
+                    else offerSecondChance()
                 isCompleted() -> finishGame(giveUp = false)
                 else -> queueSave()
             }
@@ -556,6 +584,7 @@ class GameViewModel @Inject constructor(
     }
 
     private fun useHint() {
+        if (state.hintsUsed >= PreferencesConstants.MAX_HINTS_PER_GAME) return
         if (!selectedCellEditable()) return
         clearNotesAtCell()
         setValueCell(state.solvedBoard[state.currCell.row][state.currCell.col].value, countMistake = false)
@@ -588,19 +617,20 @@ class GameViewModel @Inject constructor(
         state.gameBoard[row].indices.all { col -> state.gameBoard[row][col].value == state.solvedBoard[row][col].value }
     }
 
-    private fun finishGame(giveUp: Boolean) {
-        if (state.endGame) return
+    private fun finishGame(giveUp: Boolean): CompletableDeferred<Unit>? {
+        if (state.endGame) return null
         pauseTimer()
         cancelAdvancedHint()
         _uiState.update {
             it.copy(endGame = true, giveUp = giveUp, currCell = Cell(-1, -1), giveUpDialog = false, showMenu = false)
         }
-        queueSave(recordCompletion = !giveUp)
+        return queueSave(recordCompletion = !giveUp)
     }
 
     private fun startTimer() {
         if (!screenResumed || !playRequested || state.isLoading || state.loadError || state.endGame ||
-            state.settings.firstGame || state.restartDialog || state.giveUpDialog || timerJob?.isActive == true) return
+            state.settings.firstGame || state.restartDialog || state.giveUpDialog || state.secondChanceDialog ||
+            timerJob?.isActive == true) return
         _uiState.update { it.copy(gamePlaying = true) }
         timerJob = viewModelScope.launch {
             while (isActive) {

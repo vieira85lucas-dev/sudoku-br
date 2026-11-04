@@ -4,9 +4,11 @@ package com.kaajjo.libresudoku.core
 class PreferencesConstants {
     companion object {
         const val MISTAKES_LIMIT = 3
+        const val MAX_SECOND_CHANCES = 4
+        const val MAX_HINTS_PER_GAME = 3
 
         // Game settings
-        const val DEFAULT_MISTAKES_LIMIT = false
+        const val DEFAULT_MISTAKES_LIMIT = true
         const val DEFAULT_HINTS_DISABLED = false
         const val DEFAULT_SHOW_TIMER = true
         const val DEFAULT_GAME_RESET_TIMER = true

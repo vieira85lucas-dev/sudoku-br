@@ -47,3 +47,19 @@ fun BannerAd(modifier: Modifier = Modifier) {
         AndroidView(factory = { adView })
     }
 }
+
+/** Verdadeiro quando o usuario pagou para remover os anuncios. */
+@Composable
+fun adsRemovedState(): Boolean {
+    val adsManager = LocalAdsManager.current ?: return false
+    val removed by adsManager.adsRemoved.collectAsState()
+    return removed
+}
+
+/** Verdadeiro quando ha um video premiado pronto para exibir. */
+@Composable
+fun rewardedReadyState(): Boolean {
+    val adsManager = LocalAdsManager.current ?: return false
+    val ready by adsManager.rewardedReady.collectAsState()
+    return ready
+}

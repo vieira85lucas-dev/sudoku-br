@@ -170,4 +170,15 @@ sealed interface GameUiEvent {
      * Retries loading the game after a previous loading failure
      */
     data object RetryLoading : GameUiEvent
+
+    /**
+     * Accepts the second chance offered at the mistake limit: clears the counted mistakes and
+     * resumes the game. The screen sends it after the rewarded video, or directly when no video applies.
+     */
+    data object AcceptSecondChance : GameUiEvent
+
+    /**
+     * Declines the second chance: the game ends as lost and the screen closes.
+     */
+    data object DeclineSecondChance : GameUiEvent
 }
