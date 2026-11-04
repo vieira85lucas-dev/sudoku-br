@@ -15,6 +15,14 @@ val admobBannerId = "ca-app-pub-8136331239459607/8582986927"
 val admobInterstitialId = "ca-app-pub-8136331239459607/8709437444"
 val admobRewardedId = "ca-app-pub-8136331239459607/3457110761"
 
+// Blocos de teste do Google. O debug sempre os usa; o release so com -PtestAds=true (teste fechado).
+val testBannerId = "ca-app-pub-3940256099942544/9214589741"
+val testInterstitialId = "ca-app-pub-3940256099942544/1033173712"
+val testRewardedId = "ca-app-pub-3940256099942544/5224354917"
+val useTestAds = providers.gradleProperty("testAds").orNull == "true"
+// A Play exige versionCode crescente a cada envio; o CI passa -PversionCode=<numero da execucao>.
+val appVersionCode = providers.gradleProperty("versionCode").orNull?.toIntOrNull() ?: 1
+
 android {
     namespace = "com.kaajjo.libresudoku"
     compileSdk = 35
@@ -23,7 +31,7 @@ android {
         applicationId = "dev.vieira85lucas.sudokubr"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
+        versionCode = appVersionCode
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -46,14 +54,14 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "ADMOB_BANNER_ID", "\"ca-app-pub-3940256099942544/9214589741\"")
-            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"ca-app-pub-3940256099942544/1033173712\"")
-            buildConfigField("String", "ADMOB_REWARDED_ID", "\"ca-app-pub-3940256099942544/5224354917\"")
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"$testBannerId\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"$testInterstitialId\"")
+            buildConfigField("String", "ADMOB_REWARDED_ID", "\"$testRewardedId\"")
         }
         release {
-            buildConfigField("String", "ADMOB_BANNER_ID", "\"$admobBannerId\"")
-            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"$admobInterstitialId\"")
-            buildConfigField("String", "ADMOB_REWARDED_ID", "\"$admobRewardedId\"")
+            buildConfigField("String", "ADMOB_BANNER_ID", "\"${if (useTestAds) testBannerId else admobBannerId}\"")
+            buildConfigField("String", "ADMOB_INTERSTITIAL_ID", "\"${if (useTestAds) testInterstitialId else admobInterstitialId}\"")
+            buildConfigField("String", "ADMOB_REWARDED_ID", "\"${if (useTestAds) testRewardedId else admobRewardedId}\"")
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
