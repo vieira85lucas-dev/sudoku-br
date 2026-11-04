@@ -359,4 +359,10 @@
     <string name="home_headline_b">cerebral?</string>
     <string name="home_in_progress">Em andamento</string>
     <string name="home_filled_time">%1$d%% preenchido • %2$s</string>
+    <string name="game_title">Sudoku</string>
+    <string name="game_percent_done">%1$d%% concluído</string>
+    <string name="game_tool_undo">Desfazer</string>
+    <string name="game_tool_hint">Dica</string>
+    <string name="game_tool_notes">Notas</string>
+    <string name="game_tool_erase">Apagar</string>
 </resources>

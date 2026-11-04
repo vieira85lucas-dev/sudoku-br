@@ -99,6 +99,17 @@ import com.kaajjo.libresudoku.ui.util.ReverseArrangement
 import com.kaajjo.libresudoku.ui.util.findActivity
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.rounded.Timer
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.kaajjo.libresudoku.ui.game.models.GameSettings
+import com.kaajjo.libresudoku.ui.theme.NeoCard
+import com.kaajjo.libresudoku.ui.theme.NeoColors
 
 @Destination(
     style = AnimatedNavigation::class,
@@ -220,6 +231,7 @@ private fun GameScreenContent(
         topBar = {
             TopAppBar(
                 title = { },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 navigationIcon = {
                     IconButton(onClick = { onEvent(GameUiEvent.NavigateBack) }) {
                         Icon(
@@ -322,25 +334,7 @@ private fun GameScreenContent(
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             AnimatedVisibility(visible = !uiState.endGame) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    TopBoardSection(stringResource(uiState.gameDifficulty.resName))
-                    if (settings.mistakesLimit && settings.mistakesMethod != 0) {
-                        TopBoardSection(
-                            stringResource(
-                                R.string.mistakes_number_out_of,
-                                uiState.mistakesCount,
-                                PreferencesConstants.MISTAKES_LIMIT
-                            )
-                        )
-                    }
-                    AnimatedVisibility(visible = settings.timerEnabled || uiState.endGame) {
-                        TopBoardSection(uiState.timeText)
-                    }
-                }
+                GameHeader(uiState = uiState, settings = settings)
             }
 
             Box(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
@@ -357,8 +351,13 @@ private fun GameScreenContent(
                         )
                     }
                 }
+                NeoCard(
+                    modifier = Modifier.fillMaxWidth().blur(boardBlur).scale(boardScale, boardScale),
+                    shape = RoundedCornerShape(20.dp),
+                    shadow = 3.dp
+                ) {
                 Board(
-                    modifier = Modifier.blur(boardBlur).scale(boardScale, boardScale),
+                    modifier = Modifier,
                     board = if (uiState.showSolution) uiState.solvedBoard else uiState.gameBoard,
                     size = uiState.size,
                     mainTextSize = fontSize,
@@ -389,6 +388,7 @@ private fun GameScreenContent(
                         ?.takeIf { uiState.advancedHintMode }
                         ?.let { it.helpCells + it.targetCell }
                 )
+                }
             }
 
             AnimatedContent(uiState.advancedHintMode, label = "Advanced hint mode") { hintMode ->
@@ -569,6 +569,7 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
                 )
                 ToolbarItem(
                     painter = painterResource(R.drawable.ic_round_undo_24),
+                    label = stringResource(R.string.game_tool_undo),
                     onClick = { onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Undo)) },
                     onLongClick = { onEvent(GameUiEvent.SetUndoRedoMenuVisible(true)) }
                 )
@@ -577,6 +578,7 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
                 ToolbarItem(
                     modifier = Modifier.weight(1f),
                     painter = painterResource(R.drawable.ic_lightbulb_stars_24),
+                    label = stringResource(R.string.game_tool_hint),
                     onClick = {
                         val premium = adsManager?.adsRemoved?.value == true
                         when {
@@ -605,6 +607,7 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
                 )
                 ToolbarItem(
                     painter = painterResource(R.drawable.ic_round_edit_24),
+                    label = stringResource(R.string.game_tool_notes),
                     toggled = uiState.notesToggled,
                     onClick = { onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Note)) },
                     onLongClick = { onEvent(GameUiEvent.SetNotesMenuVisible(true)) }
@@ -613,6 +616,7 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
             ToolbarItem(
                 modifier = Modifier.weight(1f),
                 painter = painterResource(R.drawable.ic_eraser_24),
+                label = stringResource(R.string.game_tool_erase),
                 toggled = uiState.eraseButtonToggled,
                 onClick = { onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Remove)) },
                 onLongClick = { onEvent(GameUiEvent.ToggleEraseMode) }
@@ -654,6 +658,73 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
             },
             onDismissRequest = { showHintAdDialog = false }
         )
+    }
+}
+
+@Composable
+private fun GameHeader(uiState: GameUiState, settings: GameSettings) {
+    val total = uiState.size * uiState.size
+    val filled = uiState.gameBoard.sumOf { row -> row.count { it.value != 0 } }
+    val percent = if (total > 0) filled * 100 / total else 0
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = "${stringResource(uiState.gameDifficulty.resName)} · ${stringResource(uiState.gameType.resName)}".uppercase(),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 1.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+            )
+            Text(
+                text = stringResource(R.string.game_title),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.ExtraBold
+            )
+            if (settings.mistakesLimit && settings.mistakesMethod != 0) {
+                Text(
+                    text = stringResource(
+                        R.string.mistakes_number_out_of,
+                        uiState.mistakesCount,
+                        PreferencesConstants.MISTAKES_LIMIT
+                    ),
+                    modifier = Modifier
+                        .padding(top = 6.dp)
+                        .background(NeoColors.Coral.copy(alpha = 0.55f), RoundedCornerShape(50))
+                        .padding(horizontal = 10.dp, vertical = 3.dp),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            if (settings.timerEnabled || uiState.endGame) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Rounded.Timer,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = uiState.timeText,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    )
+                }
+            }
+            Text(
+                text = stringResource(R.string.game_percent_done, percent).uppercase(),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 0.8.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+            )
+        }
     }
 }
 

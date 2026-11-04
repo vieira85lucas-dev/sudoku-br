@@ -22,6 +22,14 @@ import androidx.compose.ui.unit.dp
 import com.kaajjo.libresudoku.R
 import com.kaajjo.libresudoku.ui.theme.LibreSudokuTheme
 import com.kaajjo.libresudoku.ui.util.LightDarkPreview
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import com.kaajjo.libresudoku.ui.theme.NeoColors
+import com.kaajjo.libresudoku.ui.theme.neoShadow
 
 enum class ToolBarItem {
     Undo,
@@ -37,29 +45,43 @@ fun ToolbarItem(
     modifier: Modifier = Modifier,
     painter: Painter,
     toggled: Boolean = false,
+    label: String? = null,
     onClick: () -> Unit = { },
     onLongClick: () -> Unit = { }
 ) {
-    Box(
-        modifier = modifier
-            .clip(MaterialTheme.shapes.large)
-            .background(if (toggled) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp))
-            .combinedClickable(
-                onClick = onClick,
-                onLongClick = onLongClick
-            ),
-        contentAlignment = Alignment.Center
+    val shape = RoundedCornerShape(16.dp)
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .neoShadow(shape, MaterialTheme.colorScheme.outline, if (toggled) 0.dp else 2.dp)
+                .clip(shape)
+                .background(if (toggled) NeoColors.Lavender else MaterialTheme.colorScheme.surface, shape)
+                .border(2.dp, MaterialTheme.colorScheme.outline, shape)
+                .combinedClickable(
+                    onClick = onClick,
+                    onLongClick = onLongClick
+                )
+                .padding(vertical = 10.dp),
+            contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = painter,
-                contentDescription = null,
-                tint = if (toggled) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+                contentDescription = label,
+                tint = if (toggled) NeoColors.Charcoal else MaterialTheme.colorScheme.onSurface
+            )
+        }
+        if (label != null) {
+            Text(
+                text = label.uppercase(),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = 0.8.sp,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
             )
         }
     }

@@ -34,6 +34,10 @@ import androidx.compose.ui.unit.sp
 import com.kaajjo.libresudoku.core.qqwing.GameType
 import com.kaajjo.libresudoku.ui.theme.LibreSudokuTheme
 import com.kaajjo.libresudoku.ui.util.LightDarkPreview
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.kaajjo.libresudoku.ui.theme.NeoColors
+import com.kaajjo.libresudoku.ui.theme.neoShadow
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -46,19 +50,15 @@ fun KeyboardItem(
     selected: Boolean = false
 ) {
     val mutableInteractionSource by remember { mutableStateOf(MutableInteractionSource()) }
-    val color by animateColorAsState(
-        targetValue = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else Color.Transparent
-    )
     val localView = LocalView.current
-    val keyboardFontSize = if (remainingUses != null) {
-        25.sp
-    } else {
-        36.sp
-    }
+    val shape = RoundedCornerShape(12.dp)
+    val outline = MaterialTheme.colorScheme.outline
     Box(
         modifier = modifier
-            .clip(CircleShape)
-            .background(color)
+            .neoShadow(shape, outline, if (selected) 0.dp else 2.dp)
+            .clip(shape)
+            .background(if (selected) NeoColors.Lavender else MaterialTheme.colorScheme.surface, shape)
+            .border(2.dp, outline, shape)
             .combinedClickable(
                 interactionSource = mutableInteractionSource,
                 onClick = {
@@ -70,25 +70,28 @@ fun KeyboardItem(
                 },
                 indication = ripple(
                     bounded = true,
-                    color = MaterialTheme.colorScheme.primary
+                    color = NeoColors.Lavender
                 )
             ),
         contentAlignment = Alignment.Center
     ) {
         Column(
-            modifier = Modifier.padding(7.dp),
+            modifier = Modifier.padding(vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = number.toString(16).uppercase(),
-                fontWeight = FontWeight.Bold,
-                fontSize = keyboardFontSize,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 22.sp,
+                color = if (selected) NeoColors.Charcoal else MaterialTheme.colorScheme.onSurface
             )
             if (remainingUses != null) {
                 Text(
                     text = remainingUses.toString(),
-                    fontSize = 11.sp
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (selected) NeoColors.Charcoal else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -108,7 +111,7 @@ fun DefaultGameKeyboard(
     val numbers by remember(size) { mutableStateOf((1..size).toList()) }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(2.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (size == GameType.Default12x12.size) {
             // double-height keyboard only for 12x12
@@ -193,7 +196,7 @@ private fun KeyboardRow(
         modifier = Modifier
             .fillMaxWidth()
             .then(modifier),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         content()

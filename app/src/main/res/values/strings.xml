@@ -414,4 +414,10 @@
     <string name="home_headline_b">workout?</string>
     <string name="home_in_progress">In progress</string>
     <string name="home_filled_time">%1$d%% filled • %2$s</string>
+    <string name="game_title">Sudoku</string>
+    <string name="game_percent_done">%1$d%% done</string>
+    <string name="game_tool_undo">Undo</string>
+    <string name="game_tool_hint">Hint</string>
+    <string name="game_tool_notes">Notes</string>
+    <string name="game_tool_erase">Erase</string>
 </resources>
