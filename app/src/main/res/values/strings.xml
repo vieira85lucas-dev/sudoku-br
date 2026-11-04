@@ -403,4 +403,8 @@
     <string name="ads_removed_title">Ads removed</string>
     <string name="ads_removed_manage">Manage subscription</string>
     <string name="restore_purchase">Restore purchase</string>
+    <string name="second_chance_title">Game over</string>
+    <string name="second_chance_text">You made %1$d mistakes and lost this game. Want a second chance?</string>
+    <string name="second_chance_accept">Second chance</string>
+    <string name="second_chance_decline">New game</string>
 </resources>

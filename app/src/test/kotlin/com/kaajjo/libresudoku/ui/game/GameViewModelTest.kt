@@ -339,6 +339,13 @@ class GameViewModelTest {
 
         assertEquals(3, viewModel.uiState.value.mistakesCount)
         assertEquals(6, viewModel.uiState.value.gameBoard[0][0].value)
+        assertTrue(viewModel.uiState.value.secondChanceDialog)
+        assertFalse(viewModel.uiState.value.endGame)
+
+        viewModel.sendEvent(GameUiEvent.DeclineSecondChance)
+        runCurrent()
+
+        assertFalse(viewModel.uiState.value.secondChanceDialog)
         assertTrue(viewModel.uiState.value.endGame)
         assertTrue(viewModel.uiState.value.giveUp)
         assertFalse(viewModel.uiState.value.gamePlaying)
@@ -349,6 +356,50 @@ class GameViewModelTest {
         assertEquals(false, persistedGame?.canContinue)
         assertEquals(1, savedGames.count { it.completed })
         coVerify(exactly = 0) { recordRepository.insert(any<Record>()) }
+    }
+
+    @Test
+    fun `accepting the second chance clears mistakes and resumes play`() = runGameTest {
+        stubSettings(
+            GameSettings(inputMethod = 0, remainingUse = false, mistakesLimit = true, mistakesMethod = 2)
+        )
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        listOf(3, 4, 6).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
+        runCurrent()
+        assertTrue(viewModel.uiState.value.secondChanceDialog)
+        assertFalse(viewModel.uiState.value.gamePlaying)
+
+        viewModel.sendEvent(GameUiEvent.AcceptSecondChance)
+        runCurrent()
+
+        val resumed = viewModel.uiState.value
+        assertFalse(resumed.secondChanceDialog)
+        assertTrue(resumed.secondChanceUsed)
+        assertEquals(0, resumed.mistakesCount)
+        assertFalse(resumed.endGame)
+        assertTrue(resumed.gamePlaying)
+    }
+
+    @Test
+    fun `the second chance is offered only once per game`() = runGameTest {
+        stubSettings(
+            GameSettings(inputMethod = 0, remainingUse = false, mistakesLimit = true, mistakesMethod = 2)
+        )
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        listOf(3, 4, 6).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
+        runCurrent()
+        viewModel.sendEvent(GameUiEvent.AcceptSecondChance)
+        runCurrent()
+
+        listOf(7, 8, 9).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
+        runCurrent()
+
+        val state = viewModel.uiState.value
+        assertFalse(state.secondChanceDialog)
+        assertTrue(state.endGame)
+        assertTrue(state.giveUp)
     }
 
     @Test

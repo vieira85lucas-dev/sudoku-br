@@ -6,7 +6,7 @@ class PreferencesConstants {
         const val MISTAKES_LIMIT = 3
 
         // Game settings
-        const val DEFAULT_MISTAKES_LIMIT = false
+        const val DEFAULT_MISTAKES_LIMIT = true
         const val DEFAULT_HINTS_DISABLED = false
         const val DEFAULT_SHOW_TIMER = true
         const val DEFAULT_GAME_RESET_TIMER = true

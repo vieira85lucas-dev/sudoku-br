@@ -60,6 +60,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -452,6 +453,34 @@ private fun GameScreenContent(
                 }
             },
             onDismissRequest = { onEvent(GameUiEvent.DismissGiveUpDialog) }
+        )
+    }
+    if (uiState.secondChanceDialog) {
+        val adsManager = LocalAdsManager.current
+        val activity = LocalContext.current.findActivity()
+        val acceptChance = { onEvent(GameUiEvent.AcceptSecondChance) }
+        AlertDialog(
+            title = { Text(stringResource(R.string.second_chance_title)) },
+            text = { Text(stringResource(R.string.second_chance_text, PreferencesConstants.MISTAKES_LIMIT)) },
+            dismissButton = {
+                TextButton(onClick = { onEvent(GameUiEvent.DeclineSecondChance) }) {
+                    Text(stringResource(R.string.second_chance_decline))
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    // Sem video pronto (assinante, sem rede ou sem consentimento) a chance sai de graca.
+                    if (adsManager != null && activity != null && adsManager.isRewardedReady()) {
+                        adsManager.showRewarded(activity, onReward = acceptChance, onUnavailable = acceptChance)
+                    } else {
+                        acceptChance()
+                    }
+                }) {
+                    Text(stringResource(R.string.second_chance_accept))
+                }
+            },
+            onDismissRequest = { },
+            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
         )
     }
 }
