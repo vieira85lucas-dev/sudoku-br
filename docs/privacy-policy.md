@@ -1,3 +1,9 @@
+---
+title: Política de Privacidade — Sudoku BR
+permalink: /privacy-policy/
+lang: pt-BR
+---
+
 # Política de Privacidade — Sudoku BR
 
 *Última atualização: 27 de outubro de 2026*
