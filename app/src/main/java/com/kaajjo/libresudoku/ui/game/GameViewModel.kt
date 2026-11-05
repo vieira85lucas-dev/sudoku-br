@@ -542,8 +542,11 @@ class GameViewModel @Inject constructor(
         }
     }
 
+    /** Quantas vezes cada digito ainda cabe; numeros marcados como erro nao consomem o digito. */
     private fun countRemainingUses(board: List<List<Cell>>) =
-        (1..board.size).map { board.size - sudokuUtils.countNumberInBoard(board, it) }
+        (1..board.size).map { number ->
+            board.size - board.sumOf { row -> row.count { it.value == number && !it.error } }
+        }
 
     private fun rememberMove() {
         undoRedoManager.addState(GameState(state.gameBoard, state.notes))
