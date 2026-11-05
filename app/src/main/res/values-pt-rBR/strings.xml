@@ -355,4 +355,33 @@
     <string name="second_chance_unavailable">Nenhum vídeo disponível no momento. Verifique sua conexão.</string>
     <string name="hint_limit_reached">Você pode usar até %1$d dicas por partida.</string>
     <string name="ad_unavailable">Nenhum vídeo disponível no momento. Verifique sua conexão e tente de novo.</string>
+
+    <!-- Como jogar (tutorial) -->
+    <string name="how_to_play_title">Como jogar</string>
+    <string name="how_to_play_help">Como jogar</string>
+    <string name="how_to_play_previous">Anterior</string>
+    <string name="how_to_play_next">Próximo</string>
+    <string name="how_to_play_done">Concluir</string>
+    <string name="how_to_play_row">Linha</string>
+    <string name="how_to_play_column">Coluna</string>
+    <string name="how_to_play_block">Bloco 3x3</string>
+    <string name="how_to_play_goal_title">O objetivo</string>
+    <string name="how_to_play_goal_text">Preencha a grade 9x9 para que cada linha, cada coluna e cada bloco 3x3 tenha todos os números de 1 a 9, sem repetir.</string>
+    <string name="how_to_play_select_title">Preencha um número</string>
+    <string name="how_to_play_select_text">Toque numa célula vazia e depois toque no número para preenchê-la.</string>
+    <string name="how_to_play_lock_title">Vários números iguais</string>
+    <string name="how_to_play_lock_text">Segure um número para travá-lo. Depois é só tocar nas células para preencher com ele, uma atrás da outra.</string>
+    <string name="how_to_play_notes_title">Anotações</string>
+    <string name="how_to_play_notes_text">Toque no lápis para ligar as anotações. Os números tocados ficam pequenos na célula, como lembrete dos candidatos.</string>
+    <string name="how_to_play_erase_title">Apagar</string>
+    <string name="how_to_play_erase_text">Toque na borracha e depois na célula para apagar o número ou as anotações dela.</string>
+    <string name="how_to_play_rules_title">Erros, dicas e anúncios</string>
+    <string name="how_to_play_rule_mistakes_title">Erros</string>
+    <string name="how_to_play_rule_mistakes_text">Você pode errar até 3 vezes por partida. O número errado aparece em vermelho.</string>
+    <string name="how_to_play_rule_second_chance_title">Segunda chance</string>
+    <string name="how_to_play_rule_second_chance_text">Ao chegar ao 3º erro, assista a um vídeo curto para continuar jogando. Dá para usar até 4 vezes por partida.</string>
+    <string name="how_to_play_rule_hints_title">Dicas</string>
+    <string name="how_to_play_rule_hints_text">Toque na lâmpada para revelar uma célula. Cada dica é liberada ao assistir a um vídeo, até 3 por partida.</string>
+    <string name="how_to_play_rule_ads_title">Sem anúncios</string>
+    <string name="how_to_play_rule_ads_text">Em Mais, assine para jogar sem anúncios e usar dicas e segunda chance direto.</string>
 </resources>

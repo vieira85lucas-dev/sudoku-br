@@ -410,4 +410,33 @@
     <string name="second_chance_unavailable">No video available right now. Check your connection.</string>
     <string name="hint_limit_reached">You can use up to %1$d hints per game.</string>
     <string name="ad_unavailable">No video available right now. Check your connection and try again.</string>
+
+    <!-- How to play (tutorial) -->
+    <string name="how_to_play_title">How to play</string>
+    <string name="how_to_play_help">How to play</string>
+    <string name="how_to_play_previous">Previous</string>
+    <string name="how_to_play_next">Next</string>
+    <string name="how_to_play_done">Done</string>
+    <string name="how_to_play_row">Row</string>
+    <string name="how_to_play_column">Column</string>
+    <string name="how_to_play_block">3x3 block</string>
+    <string name="how_to_play_goal_title">The goal</string>
+    <string name="how_to_play_goal_text">Fill the 9x9 grid so that every row, column and 3x3 block contains the digits 1 to 9 with no repeats.</string>
+    <string name="how_to_play_select_title">Fill in a number</string>
+    <string name="how_to_play_select_text">Tap an empty cell, then tap a number to fill it in.</string>
+    <string name="how_to_play_lock_title">Several equal numbers</string>
+    <string name="how_to_play_lock_text">Press and hold a number to lock it. Then just tap cells to fill them with it, one after another.</string>
+    <string name="how_to_play_notes_title">Notes</string>
+    <string name="how_to_play_notes_text">Tap the pencil to turn notes on. Tapped numbers appear small in the cell as candidates.</string>
+    <string name="how_to_play_erase_title">Erase</string>
+    <string name="how_to_play_erase_text">Tap the eraser, then tap a cell to erase its number or notes.</string>
+    <string name="how_to_play_rules_title">Mistakes, hints and ads</string>
+    <string name="how_to_play_rule_mistakes_title">Mistakes</string>
+    <string name="how_to_play_rule_mistakes_text">You can make up to 3 mistakes per game. A wrong number is shown in red.</string>
+    <string name="how_to_play_rule_second_chance_title">Second chance</string>
+    <string name="how_to_play_rule_second_chance_text">On the 3rd mistake, watch a short video to keep playing. Up to 4 times per game.</string>
+    <string name="how_to_play_rule_hints_title">Hints</string>
+    <string name="how_to_play_rule_hints_text">Tap the light bulb to reveal a cell. Each hint is unlocked by watching a video, up to 3 per game.</string>
+    <string name="how_to_play_rule_ads_title">Ad-free</string>
+    <string name="how_to_play_rule_ads_text">Under More, subscribe to play without ads and use hints and second chances directly.</string>
 </resources>
