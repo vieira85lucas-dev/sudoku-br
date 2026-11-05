@@ -6,7 +6,7 @@ lang: pt-BR
 
 # Política de Privacidade — Sudoku BR
 
-*Última atualização: 27 de outubro de 2026*
+*Última atualização: 5 de novembro de 2026*
 
 O Sudoku BR é um jogo de Sudoku gratuito, mantido por **Lucas Vieira Teixeira Pinto**. Este documento explica quais dados o aplicativo usa, conforme a Lei Geral de Proteção de Dados (LGPD, Lei 13.709/2018).
 
