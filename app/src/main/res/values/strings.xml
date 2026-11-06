@@ -464,4 +464,29 @@
     <string name="more_title_a">All the </string>
     <string name="more_title_b">more</string>
     <string name="more_subtitle">Settings, help and your Sudoku BR</string>
+
+    <!-- VP points and levels -->
+    <string name="vp_unit">VP</string>
+    <string name="vp_total">Total VP</string>
+    <string name="vp_earned">VP earned</string>
+    <string name="level_label">Level %1$d</string>
+    <string name="level_short">Lv %1$d</string>
+    <string name="level_progress_title">Skill progress</string>
+    <string name="level_to_next">%1$d VP to level %2$d</string>
+    <string-array name="level_names">
+        <item>Beginner</item>
+        <item>Curious</item>
+        <item>Apprentice</item>
+        <item>Strategist</item>
+        <item>Master of Logic</item>
+        <item>Sudoku Master</item>
+        <item>Sudoku Legend</item>
+    </string-array>
+    <!-- Victory panel -->
+    <string name="victory_title">Congratulations!</string>
+    <string name="victory_subtitle">You completed the challenge</string>
+    <string name="victory_time">Time</string>
+    <string name="victory_hints">Hints</string>
+    <string name="victory_level">Level</string>
+    <string name="defeat_title">Game over</string>
 </resources>

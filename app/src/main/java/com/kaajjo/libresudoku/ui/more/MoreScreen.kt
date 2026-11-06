@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.kaajjo.libresudoku.R
 import com.kaajjo.libresudoku.ads.PrivacyOptionsRow
 import com.kaajjo.libresudoku.billing.BillingRows
@@ -34,6 +36,8 @@ import com.kaajjo.libresudoku.destinations.HowToPlayScreenDestination
 import com.kaajjo.libresudoku.destinations.LearnScreenDestination
 import com.kaajjo.libresudoku.destinations.SettingsCategoriesScreenDestination
 import com.kaajjo.libresudoku.ui.components.AnimatedNavigation
+import com.kaajjo.libresudoku.ui.progress.LevelCard
+import com.kaajjo.libresudoku.ui.progress.ProgressViewModel
 import com.kaajjo.libresudoku.ui.theme.NeoColors
 import com.kaajjo.libresudoku.ui.theme.NeoMenuRow
 import com.ramcosta.composedestinations.annotation.Destination
@@ -42,8 +46,10 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Destination(style = AnimatedNavigation::class)
 @Composable
 fun MoreScreen(
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
+    progressViewModel: ProgressViewModel = hiltViewModel()
 ) {
+    val level = progressViewModel.level.collectAsState().value
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets.statusBars
@@ -71,6 +77,8 @@ fun MoreScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            LevelCard(level)
 
             BillingRows()
 

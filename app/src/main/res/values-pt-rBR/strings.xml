@@ -409,4 +409,29 @@
     <string name="more_title_a">Tudo o </string>
     <string name="more_title_b">mais</string>
     <string name="more_subtitle">Ajustes, ajuda e o seu Sudoku BR</string>
+
+    <!-- Pontuacao VP e niveis -->
+    <string name="vp_unit">VP</string>
+    <string name="vp_total">Total VP</string>
+    <string name="vp_earned">VP ganhos</string>
+    <string name="level_label">Nível %1$d</string>
+    <string name="level_short">Nv %1$d</string>
+    <string name="level_progress_title">Progressão de habilidade</string>
+    <string name="level_to_next">Faltam %1$d VP para o nível %2$d</string>
+    <string-array name="level_names">
+        <item>Iniciante</item>
+        <item>Curioso</item>
+        <item>Aprendiz</item>
+        <item>Estrategista</item>
+        <item>Mestre das Lógicas</item>
+        <item>Mestre do Sudoku</item>
+        <item>Lenda do Sudoku</item>
+    </string-array>
+    <!-- Painel de vitoria -->
+    <string name="victory_title">Parabéns!</string>
+    <string name="victory_subtitle">Você completou o desafio</string>
+    <string name="victory_time">Tempo</string>
+    <string name="victory_hints">Dicas</string>
+    <string name="victory_level">Nível</string>
+    <string name="defeat_title">Fim de jogo</string>
 </resources>

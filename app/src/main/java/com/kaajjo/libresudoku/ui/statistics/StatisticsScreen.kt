@@ -62,6 +62,8 @@ import com.kaajjo.libresudoku.destinations.GamesHistoryScreenDestination
 import com.kaajjo.libresudoku.destinations.SavedGameScreenDestination
 import com.kaajjo.libresudoku.ui.components.AnimatedNavigation
 import com.kaajjo.libresudoku.ui.components.EmptyScreen
+import com.kaajjo.libresudoku.ui.progress.LevelCard
+import com.kaajjo.libresudoku.ui.progress.ProgressViewModel
 import com.kaajjo.libresudoku.ui.theme.NeoCard
 import com.kaajjo.libresudoku.ui.theme.NeoChip
 import com.kaajjo.libresudoku.ui.theme.NeoColors
@@ -77,12 +79,14 @@ import kotlin.math.roundToInt
 @Composable
 fun StatisticsScreen(
     viewModel: StatisticsViewModel = hiltViewModel(),
+    progressViewModel: ProgressViewModel = hiltViewModel(),
     navigator: DestinationsNavigator
 ) {
     val dateFormat by viewModel.dateFormat.collectAsStateWithLifecycle(initialValue = "")
     val records = viewModel.recordList.collectAsState(initial = emptyList()).value
     val savedGames = viewModel.savedGamesList.collectAsState(initial = emptyList()).value
     val context = LocalContext.current
+    val level = progressViewModel.level.collectAsState().value
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -177,16 +181,12 @@ fun StatisticsScreen(
                 else noValue
 
             StatsGrid(
-                cards = buildList {
-                    add(StatCard(stringResource(R.string.stats_games), started.toString(), NeoColors.Mint, R.drawable.ic_rounded_stadia_controller_24))
-                    add(StatCard(stringResource(R.string.stats_wins), winRate, NeoColors.Lavender, R.drawable.ic_outline_verified_24))
-                    add(StatCard(stringResource(R.string.best_time), bestTime, NeoColors.Yellow, R.drawable.ic_round_hourglass_empty_24))
-                    if (allFilters) {
-                        add(StatCard(stringResource(R.string.stats_record), viewModel.getMaxStreak(savedGames).toString(), NeoColors.Coral, R.drawable.ic_outline_star_24))
-                    } else {
-                        add(StatCard(stringResource(R.string.average_time), averageTime, NeoColors.Coral, R.drawable.ic_outline_star_24))
-                    }
-                }
+                cards = listOf(
+                    StatCard(stringResource(R.string.stats_games), started.toString(), NeoColors.Mint, R.drawable.ic_rounded_stadia_controller_24),
+                    StatCard(stringResource(R.string.stats_wins), winRate, NeoColors.Lavender, R.drawable.ic_outline_verified_24),
+                    StatCard(stringResource(R.string.vp_total), level.totalPoints.toString(), NeoColors.Yellow, R.drawable.ic_outline_star_24),
+                    StatCard(stringResource(R.string.best_time), bestTime, NeoColors.Coral, R.drawable.ic_round_hourglass_empty_24)
+                )
             )
             Spacer(Modifier.height(12.dp))
             NeoCard(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(20.dp), shadow = 2.dp) {
@@ -195,9 +195,13 @@ fun StatisticsScreen(
                     if (allFilters) {
                         StatRow(stringResource(R.string.games_completed), completed.toString())
                         StatRow(stringResource(R.string.current_streak), viewModel.getCurrentStreak(savedGames).toString())
+                        StatRow(stringResource(R.string.best_streak), viewModel.getMaxStreak(savedGames).toString())
                     }
                 }
             }
+            Spacer(Modifier.height(24.dp))
+            SectionTitle(stringResource(R.string.level_progress_title))
+            LevelCard(level)
 
             if (allFilters) {
                 Spacer(Modifier.height(24.dp))
