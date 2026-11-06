@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -59,6 +60,7 @@ import com.kaajjo.libresudoku.core.qqwing.GameType
 import com.kaajjo.libresudoku.core.utils.toFormattedString
 import com.kaajjo.libresudoku.data.database.model.SavedGame
 import com.kaajjo.libresudoku.destinations.GameScreenDestination
+import com.kaajjo.libresudoku.destinations.HowToPlayScreenDestination
 import com.kaajjo.libresudoku.ui.components.AnimatedNavigation
 import com.kaajjo.libresudoku.ui.components.ScrollbarLazyColumn
 import com.kaajjo.libresudoku.ui.components.generation.GenerationDialog
@@ -210,6 +212,22 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navigator: Destinatio
                 modifier = Modifier.fillMaxWidth(),
                 color = NeoColors.Lavender
             )
+        }
+
+        Box(
+            modifier = Modifier.padding(paddingValues).fillMaxSize(),
+            contentAlignment = Alignment.TopEnd
+        ) {
+            IconButton(
+                modifier = Modifier.padding(8.dp),
+                onClick = { navigator.navigate(HowToPlayScreenDestination()) }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
+                    contentDescription = stringResource(R.string.how_to_play_help),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
 
         if (continueGameDialog) {
