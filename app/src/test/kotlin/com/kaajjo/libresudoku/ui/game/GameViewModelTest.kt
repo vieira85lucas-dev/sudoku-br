@@ -428,6 +428,22 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `a wrong digit does not consume the remaining uses of that digit`() = runGameTest {
+        stubSettings(
+            GameSettings(inputMethod = 0, remainingUse = true, mistakesLimit = true, mistakesMethod = 2)
+        )
+        val viewModel = loadedGame()
+        val before = viewModel.uiState.value.remainingUsesList[2]
+
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        viewModel.sendEvent(GameUiEvent.NumberTapped(3))
+        runCurrent()
+
+        assertTrue(viewModel.uiState.value.gameBoard[0][0].error)
+        assertEquals(before, viewModel.uiState.value.remainingUsesList[2])
+    }
+
+    @Test
     fun `saved 6x6 game restores notes time and given cell locks`() = runGameTest {
         assertSavedGameRestored(GameType.Default6x6)
     }

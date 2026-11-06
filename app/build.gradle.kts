@@ -30,7 +30,7 @@ android {
     defaultConfig {
         applicationId = "dev.vieira85lucas.sudokubr"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = appVersionCode
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
