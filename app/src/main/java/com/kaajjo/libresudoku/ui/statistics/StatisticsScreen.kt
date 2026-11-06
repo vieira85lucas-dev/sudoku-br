@@ -379,21 +379,30 @@ internal fun LevelBars(bars: List<LevelBar>) {
                 ) {
                     Text(bar.count.toString(), fontWeight = FontWeight.Bold, fontSize = 12.sp)
                     Spacer(Modifier.height(4.dp))
-                    val fraction = (bar.count.toFloat() / max).coerceAtLeast(0.06f)
+                    // A area das colunas ocupa o espaco que sobra; assim o nome nunca e cortado.
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(fraction * 0.78f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(bar.color)
-                            .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
-                    )
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        val fraction = (bar.count.toFloat() / max).coerceIn(0.06f, 1f)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(fraction)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(bar.color)
+                                .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
+                        )
+                    }
                     Spacer(Modifier.height(6.dp))
                     Text(
                         text = bar.label.uppercase(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 9.sp,
-                        maxLines = 1
+                        maxLines = 1,
+                        softWrap = false
                     )
                 }
             }

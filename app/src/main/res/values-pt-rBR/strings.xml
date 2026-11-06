@@ -355,7 +355,7 @@
     <string name="second_chance_unavailable">Nenhum vídeo disponível no momento. Verifique sua conexão.</string>
     <string name="hint_limit_reached">Você pode usar até %1$d dicas por partida.</string>
     <string name="ad_unavailable">Nenhum vídeo disponível no momento. Verifique sua conexão e tente de novo.</string>
-    <string name="home_headline_a">Um pequeno exercício </string>
+    <string name="home_headline_a">"Um pequeno exercício "</string>
     <string name="home_headline_b">cerebral?</string>
     <string name="home_in_progress">Em andamento</string>
     <string name="home_filled_time">%1$d%% preenchido • %2$s</string>
@@ -396,7 +396,7 @@
     <string name="how_to_play_rule_ads_text">Em Mais, assine para jogar sem anúncios e usar dicas e segunda chance direto.</string>
 
     <!-- Estatisticas (visual novo) -->
-    <string name="stats_title_a">Suas </string>
+    <string name="stats_title_a">"Suas "</string>
     <string name="stats_title_b">Estatísticas</string>
     <string name="stats_subtitle">Acompanhe sua evolução ✨</string>
     <string name="stats_history">Histórico de partidas</string>
@@ -406,7 +406,7 @@
     <string name="stats_by_level">Vitórias por nível</string>
 
     <!-- Mais (visual novo) -->
-    <string name="more_title_a">Tudo o </string>
+    <string name="more_title_a">"Tudo o "</string>
     <string name="more_title_b">mais</string>
     <string name="more_subtitle">Ajustes, ajuda e o seu Sudoku BR</string>
 

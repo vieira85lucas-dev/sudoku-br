@@ -312,7 +312,7 @@ private fun ToolRow(notesOn: Boolean = false, eraseOn: Boolean = false, pulse: I
 // ------------------------------------------------------------------ páginas
 
 @Composable
-private fun GoalPage(active: Boolean) {
+internal fun GoalPage(active: Boolean) {
     val phase = rememberPhase(active, count = 3, stepMs = 1800L)
     val row = 4
     val col = 4
@@ -339,7 +339,7 @@ private fun GoalPage(active: Boolean) {
 }
 
 @Composable
-private fun SelectCellPage(active: Boolean) {
+internal fun SelectCellPage(active: Boolean) {
     val phase = rememberPhase(active, count = 4)
     val target = cellIndex(0, 2) // solução: 4
     val selected = if (phase >= 1) target else null
@@ -360,7 +360,7 @@ private fun SelectCellPage(active: Boolean) {
 }
 
 @Composable
-private fun LockDigitPage(active: Boolean) {
+internal fun LockDigitPage(active: Boolean) {
     val phase = rememberPhase(active, count = 5)
     val first = cellIndex(1, 1) // solução: 7
     val second = cellIndex(3, 3) // solução: 7
@@ -387,7 +387,7 @@ private fun LockDigitPage(active: Boolean) {
 }
 
 @Composable
-private fun NotesPage(active: Boolean) {
+internal fun NotesPage(active: Boolean) {
     val phase = rememberPhase(active, count = 6)
     val target = cellIndex(0, 2) // candidatos: 1, 2 e 4
     val notes = when {
@@ -419,7 +419,7 @@ private fun NotesPage(active: Boolean) {
 }
 
 @Composable
-private fun ErasePage(active: Boolean) {
+internal fun ErasePage(active: Boolean) {
     val phase = rememberPhase(active, count = 3, stepMs = 1500L)
     val target = cellIndex(0, 2)
     StepTitle(stringResource(R.string.how_to_play_erase_title))
@@ -437,7 +437,7 @@ private fun ErasePage(active: Boolean) {
 }
 
 @Composable
-private fun RulesPage() {
+internal fun RulesPage() {
     StepTitle(stringResource(R.string.how_to_play_rules_title))
     Spacer(Modifier.height(8.dp))
     RuleCard(

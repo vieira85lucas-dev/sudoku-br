@@ -147,88 +147,32 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navigator: Destinatio
     }
 
     Scaffold(containerColor = MaterialTheme.colorScheme.background) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp)
-                .padding(top = 16.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
-        ) {
-            HomeHeader()
-
-            Text(
-                text = buildAnnotatedString {
-                    append(stringResource(R.string.home_headline_a))
-                    withStyle(SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
-                        append(stringResource(R.string.home_headline_b))
-                    }
-                },
-                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp, lineHeight = 38.sp)
-            )
-
-            if (continuableGame != null) {
-                val lastBoard = lastGames.entries.firstOrNull { it.key.uid == continuableGame.uid }?.value
-                ContinueCard(
-                    title = lastBoard?.let {
-                        "${stringResource(it.difficulty.resName)} ${stringResource(it.type.resName)}"
+        val lastBoard = continuableGame?.let { game ->
+            lastGames.entries.firstOrNull { it.key.uid == game.uid }?.value
+        }
+        HomeContent(
+            modifier = Modifier.padding(paddingValues),
+            continueInfo = continuableGame?.let {
+                ContinueInfo(
+                    title = lastBoard?.let { board ->
+                        "${stringResource(board.difficulty.resName)} ${stringResource(board.type.resName)}"
                     } ?: stringResource(R.string.action_continue),
-                    percent = filledPercent(continuableGame.currentBoard),
-                    time = continuableGame.timer.toKotlinDuration().toFormattedString(),
-                    onClick = onContinue
+                    percent = filledPercent(it.currentBoard),
+                    time = it.timer.toKotlinDuration().toFormattedString()
                 )
-            }
-
-            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Text(
-                    text = stringResource(R.string.new_game),
-                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp)
-                )
-                DifficultyGrid(
-                    difficulties = viewModel.difficulties,
-                    selected = viewModel.selectedDifficulty,
-                    onSelect = { viewModel.selectedDifficulty = it }
-                )
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    viewModel.types.forEach { type ->
-                        NeoChip(
-                            text = stringResource(type.resName),
-                            selected = viewModel.selectedType == type,
-                            onClick = { viewModel.selectedType = type }
-                        )
-                    }
-                }
-            }
-
-            NeoButton(
-                text = stringResource(R.string.action_play),
-                onClick = {
-                    if (continuableGame != null) continueGameDialog = true else viewModel.startGame()
-                },
-                modifier = Modifier.fillMaxWidth(),
-                color = NeoColors.Lavender
-            )
-        }
-
-        Box(
-            modifier = Modifier.padding(paddingValues).fillMaxSize(),
-            contentAlignment = Alignment.TopEnd
-        ) {
-            IconButton(
-                modifier = Modifier.padding(8.dp),
-                onClick = { navigator.navigate(HowToPlayScreenDestination()) }
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
-                    contentDescription = stringResource(R.string.how_to_play_help),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
+            },
+            difficulties = viewModel.difficulties,
+            selectedDifficulty = viewModel.selectedDifficulty,
+            onSelectDifficulty = { viewModel.selectedDifficulty = it },
+            types = viewModel.types,
+            selectedType = viewModel.selectedType,
+            onSelectType = { viewModel.selectedType = it },
+            onContinue = onContinue,
+            onPlay = {
+                if (continuableGame != null) continueGameDialog = true else viewModel.startGame()
+            },
+            onHelp = { navigator.navigate(HowToPlayScreenDestination()) }
+        )
 
         if (continueGameDialog) {
             AlertDialog(
@@ -292,8 +236,89 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navigator: Destinatio
     }
 }
 
+/** Dados do cartao "Em andamento". */
+internal data class ContinueInfo(val title: String, val percent: Int, val time: String)
+
+/** Conteudo da tela inicial, sem depender do ViewModel. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun HomeHeader() {
+internal fun HomeContent(
+    continueInfo: ContinueInfo?,
+    difficulties: List<GameDifficulty>,
+    selectedDifficulty: GameDifficulty,
+    onSelectDifficulty: (GameDifficulty) -> Unit,
+    types: List<GameType>,
+    selectedType: GameType,
+    onSelectType: (GameType) -> Unit,
+    onContinue: () -> Unit,
+    onPlay: () -> Unit,
+    onHelp: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp)
+            .padding(top = 16.dp, bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        HomeHeader(onHelp = onHelp)
+
+        Text(
+            text = buildAnnotatedString {
+                append(stringResource(R.string.home_headline_a))
+                withStyle(SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
+                    append(stringResource(R.string.home_headline_b))
+                }
+            },
+            style = MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp, lineHeight = 38.sp)
+        )
+
+        if (continueInfo != null) {
+            ContinueCard(
+                title = continueInfo.title,
+                percent = continueInfo.percent,
+                time = continueInfo.time,
+                onClick = onContinue
+            )
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Text(
+                text = stringResource(R.string.new_game),
+                style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp)
+            )
+            DifficultyGrid(
+                difficulties = difficulties,
+                selected = selectedDifficulty,
+                onSelect = onSelectDifficulty
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                types.forEach { type ->
+                    NeoChip(
+                        text = stringResource(type.resName),
+                        selected = selectedType == type,
+                        onClick = { onSelectType(type) }
+                    )
+                }
+            }
+        }
+
+        NeoButton(
+            text = stringResource(R.string.action_play),
+            onClick = onPlay,
+            modifier = Modifier.fillMaxWidth(),
+            color = NeoColors.Lavender
+        )
+    }
+}
+
+@Composable
+private fun HomeHeader(onHelp: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         NeoCard(
             modifier = Modifier.size(44.dp),
@@ -311,8 +336,23 @@ private fun HomeHeader() {
         Spacer(Modifier.width(12.dp))
         Text(
             text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp)
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+            modifier = Modifier.weight(1f)
         )
+        NeoCard(
+            modifier = Modifier.size(44.dp),
+            color = NeoColors.Yellow,
+            shape = androidx.compose.foundation.shape.CircleShape,
+            shadow = 2.dp,
+            onClick = onHelp
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
+                contentDescription = stringResource(R.string.how_to_play_help),
+                tint = NeoColors.Charcoal,
+                modifier = Modifier.align(Alignment.Center).size(26.dp)
+            )
+        }
     }
 }
 
@@ -428,7 +468,7 @@ private fun DifficultyTile(
 ) {
     NeoCard(
         modifier = modifier,
-        color = if (selected) accent.copy(alpha = 0.35f) else MaterialTheme.colorScheme.surface,
+        color = if (selected) accent else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(24.dp),
         shadow = if (selected) 4.dp else 0.dp,
         onClick = onClick
@@ -447,7 +487,12 @@ private fun DifficultyTile(
                 Icon(imageVector = icon, contentDescription = null, tint = NeoColors.Charcoal)
             }
             Spacer(Modifier.height(10.dp))
-            Text(text = label, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+            Text(
+                text = label,
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = 16.sp,
+                color = if (selected) NeoColors.Charcoal else MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
