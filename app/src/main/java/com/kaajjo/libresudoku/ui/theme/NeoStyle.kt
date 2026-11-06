@@ -30,7 +30,7 @@ object NeoColors {
     val Background = Color(0xFFF8F7F4)
     val Charcoal = Color(0xFF252525)
     val Lavender = Color(0xFFA78BFA)
-    val LavenderDeep = Color(0xFF7C5CE0)
+    val LavenderDeep = Color(0xFF5E3BD6)
     val Mint = Color(0xFFB8E8D0)
     val Yellow = Color(0xFFFFE49A)
     val Coral = Color(0xFFFF9F8E)

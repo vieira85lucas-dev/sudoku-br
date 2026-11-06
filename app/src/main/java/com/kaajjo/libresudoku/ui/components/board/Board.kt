@@ -1,6 +1,7 @@
 package com.kaajjo.libresudoku.ui.components.board
 
 import android.graphics.Paint
+import android.graphics.Typeface
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -150,8 +151,9 @@ fun Board(
         val noteSizePx = with(LocalDensity.current) { (cellSizeDivWidth * 0.8f).toSp().toPx() }
         val killerSumSizePx = with(LocalDensity.current) { noteSizePx * 1.1f }
 
-        val thinLineWidth = with(LocalDensity.current) { 1.3.dp.toPx() }
-        val thickLineWidth = with(LocalDensity.current) { 1.3.dp.toPx() }
+        // Linhas dos blocos bem mais grossas que as das celulas, para enxergar os grupos.
+        val thinLineWidth = with(LocalDensity.current) { 1.dp.toPx() }
+        val thickLineWidth = with(LocalDensity.current) { (if (enabled) 3.dp else 2.dp).toPx() }
 
         val killerSumBounds by remember { mutableStateOf(android.graphics.Rect()) }
 
@@ -183,6 +185,7 @@ fun Board(
                     color = altForegroundColor.toArgb()
                     isAntiAlias = true
                     textSize = fontSizePx
+                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                 }
             )
         }
@@ -238,6 +241,7 @@ fun Board(
                 color = altForegroundColor.toArgb()
                 isAntiAlias = true
                 textSize = fontSizePx
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             }
             killerSumPaint = Paint().apply {
                 color = notesColor.toArgb()

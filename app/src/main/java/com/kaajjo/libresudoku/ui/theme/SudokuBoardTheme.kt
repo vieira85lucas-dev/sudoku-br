@@ -7,17 +7,19 @@ import com.kaajjo.libresudoku.ui.theme.ColorUtils.blend
 import com.kaajjo.libresudoku.ui.theme.ColorUtils.harmonizeWithPrimary
 
 object BoardColors {
+    /** Numeros colocados pelo jogador: roxo vivo, bem diferente dos numeros iniciais. */
     inline val foregroundColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.onSurface
+        get() = MaterialTheme.colorScheme.secondary
 
     inline val notesColor: Color
         @Composable
         get() = MaterialTheme.colorScheme.onSurfaceVariant
 
+    /** Numeros iniciais do jogo: grafite (ou branco no escuro), em negrito. */
     inline val altForegroundColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.secondary
+        get() = MaterialTheme.colorScheme.onSurface
 
     inline val errorColor: Color
         @Composable
@@ -33,7 +35,7 @@ object BoardColors {
 
     inline val thinLineColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.outline.copy(0.18f)
+        get() = MaterialTheme.colorScheme.outline.copy(0.35f)
 }
 
 interface SudokuBoardColors {

@@ -124,32 +124,16 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-                val monetSudokuBoard by mainViewModel.monetSudokuBoard.collectAsStateWithLifecycle(
-                    initialValue = PreferencesConstants.DEFAULT_MONET_SUDOKU_BOARD
+                // O tabuleiro sempre usa as cores do visual do app (contraste alto).
+                val boardColors = SudokuBoardColorsImpl(
+                    foregroundColor = BoardColors.foregroundColor,
+                    notesColor = BoardColors.notesColor,
+                    altForegroundColor = BoardColors.altForegroundColor,
+                    errorColor = BoardColors.errorColor,
+                    highlightColor = BoardColors.highlightColor,
+                    thickLineColor = BoardColors.thickLineColor,
+                    thinLineColor = BoardColors.thinLineColor
                 )
-
-                val boardColors =
-                    if (monetSudokuBoard) {
-                        SudokuBoardColorsImpl(
-                            foregroundColor = BoardColors.foregroundColor,
-                            notesColor = BoardColors.notesColor,
-                            altForegroundColor = BoardColors.altForegroundColor,
-                            errorColor = BoardColors.errorColor,
-                            highlightColor = BoardColors.highlightColor,
-                            thickLineColor = BoardColors.thickLineColor,
-                            thinLineColor = BoardColors.thinLineColor
-                        )
-                    } else {
-                        SudokuBoardColorsImpl(
-                            foregroundColor = MaterialTheme.colorScheme.onSurface,
-                            notesColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
-                            altForegroundColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                            errorColor = BoardColors.errorColor,
-                            highlightColor = MaterialTheme.colorScheme.outline,
-                            thickLineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.55f),
-                            thinLineColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.25f)
-                        )
-                    }
                 CompositionLocalProvider(
                     LocalBoardColors provides boardColors,
                     LocalAdsManager provides adsManager,
