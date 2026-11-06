@@ -12,7 +12,8 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import com.kaajjo.libresudoku.R
 import com.kaajjo.libresudoku.ads.LocalAdsManager
-import com.kaajjo.libresudoku.ui.components.PreferenceRow
+import com.kaajjo.libresudoku.ui.theme.NeoColors
+import com.kaajjo.libresudoku.ui.theme.NeoMenuRow
 import com.kaajjo.libresudoku.ui.util.findActivity
 
 private const val SUBSCRIPTIONS_URL = "https://play.google.com/store/account/subscriptions"
@@ -28,10 +29,12 @@ fun BillingRows() {
     val uriHandler = LocalUriHandler.current
 
     if (adsRemoved) {
-        PreferenceRow(
+        NeoMenuRow(
             title = stringResource(R.string.ads_removed_title),
             subtitle = stringResource(R.string.ads_removed_manage),
             painter = rememberVectorPainter(Icons.Outlined.Block),
+            iconColor = NeoColors.Yellow,
+            cardColor = NeoColors.Mint,
             onClick = { uriHandler.openUri(SUBSCRIPTIONS_URL) }
         )
         return
@@ -39,16 +42,19 @@ fun BillingRows() {
 
     val formattedPrice = price
     if (formattedPrice != null && activity != null) {
-        PreferenceRow(
+        NeoMenuRow(
             title = stringResource(R.string.remove_ads_title),
             subtitle = stringResource(R.string.remove_ads_price, formattedPrice),
             painter = rememberVectorPainter(Icons.Outlined.Block),
+            iconColor = NeoColors.Yellow,
+            cardColor = NeoColors.Mint,
             onClick = { billing.purchase(activity) }
         )
     }
-    PreferenceRow(
+    NeoMenuRow(
         title = stringResource(R.string.restore_purchase),
         painter = rememberVectorPainter(Icons.Outlined.Restore),
+        iconColor = NeoColors.Lavender,
         onClick = { billing.restorePurchases() }
     )
 }

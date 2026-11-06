@@ -9,7 +9,8 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.kaajjo.libresudoku.R
-import com.kaajjo.libresudoku.ui.components.PreferenceRow
+import com.kaajjo.libresudoku.ui.theme.NeoColors
+import com.kaajjo.libresudoku.ui.theme.NeoMenuRow
 import com.kaajjo.libresudoku.ui.util.findActivity
 
 /** Linha do menu que reabre o formulario de privacidade. So aparece quando o Google exige a opcao. */
@@ -20,9 +21,10 @@ fun PrivacyOptionsRow() {
     if (!required) return
     val activity = LocalContext.current.findActivity() ?: return
 
-    PreferenceRow(
+    NeoMenuRow(
         title = stringResource(R.string.about_privacy_title),
         painter = rememberVectorPainter(Icons.Outlined.PrivacyTip),
+        iconColor = NeoColors.Yellow,
         onClick = { adsManager.showPrivacyOptions(activity) }
     )
 }

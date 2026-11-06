@@ -449,4 +449,19 @@
     <string name="how_to_play_rule_hints_text">Tap the light bulb to reveal a cell. Each hint is unlocked by watching a video, up to 3 per game.</string>
     <string name="how_to_play_rule_ads_title">Ad-free</string>
     <string name="how_to_play_rule_ads_text">Under More, subscribe to play without ads and use hints and second chances directly.</string>
+
+    <!-- Statistics (new look) -->
+    <string name="stats_title_a">Your </string>
+    <string name="stats_title_b">Statistics</string>
+    <string name="stats_subtitle">Follow your progress ✨</string>
+    <string name="stats_history">Game history</string>
+    <string name="stats_games">Games</string>
+    <string name="stats_wins">Wins</string>
+    <string name="stats_record">Record</string>
+    <string name="stats_by_level">Wins by level</string>
+
+    <!-- More (new look) -->
+    <string name="more_title_a">All the </string>
+    <string name="more_title_b">more</string>
+    <string name="more_subtitle">Settings, help and your Sudoku BR</string>
 </resources>

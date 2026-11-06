@@ -144,7 +144,7 @@
     <string name="saved_game_give_up">Você desistiu</string>
     <string name="saved_game_in_progress">Em andamento</string>
     <string name="saved_game_mistakes_limit">Você excedeu o limite de erros</string>
-    <string name="learn_screen_title">Apreender</string>
+    <string name="learn_screen_title">Aprender</string>
     <string name="learn_tab_sudoku">Sudoku</string>
     <string name="learn_tab_app">App</string>
     <string name="learn_app_toolbar">Barra de ferramentas</string>
@@ -221,7 +221,7 @@
     </plurals>
     <string name="pref_board_theme_title">Tema do tabuleiro Sudoku</string>
     <string name="board_theme_title">Tema do quadro</string>
-    <string name="title_folders">Pasta</string>
+    <string name="title_folders">Pastas</string>
     <string name="create_folder">Criar uma pasta</string>
     <string name="import_from_file_title">De arquivo</string>
     <string name="game_id">Jogo #%1$d</string>
@@ -394,4 +394,19 @@
     <string name="how_to_play_rule_hints_text">Toque na lâmpada para revelar uma célula. Cada dica é liberada ao assistir a um vídeo, até 3 por partida.</string>
     <string name="how_to_play_rule_ads_title">Sem anúncios</string>
     <string name="how_to_play_rule_ads_text">Em Mais, assine para jogar sem anúncios e usar dicas e segunda chance direto.</string>
+
+    <!-- Estatisticas (visual novo) -->
+    <string name="stats_title_a">Suas </string>
+    <string name="stats_title_b">Estatísticas</string>
+    <string name="stats_subtitle">Acompanhe sua evolução ✨</string>
+    <string name="stats_history">Histórico de partidas</string>
+    <string name="stats_games">Partidas</string>
+    <string name="stats_wins">Vitórias</string>
+    <string name="stats_record">Recorde</string>
+    <string name="stats_by_level">Vitórias por nível</string>
+
+    <!-- Mais (visual novo) -->
+    <string name="more_title_a">Tudo o </string>
+    <string name="more_title_b">mais</string>
+    <string name="more_subtitle">Ajustes, ajuda e o seu Sudoku BR</string>
 </resources>

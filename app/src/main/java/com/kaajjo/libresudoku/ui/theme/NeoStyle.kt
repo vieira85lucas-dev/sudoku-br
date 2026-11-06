@@ -5,6 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -125,5 +128,57 @@ fun NeoChip(
             fontWeight = FontWeight.Bold,
             fontSize = 13.sp
         )
+    }
+}
+
+/** Linha de menu em cartao: icone colorido, titulo, subtitulo opcional e seta. */
+@Composable
+fun NeoMenuRow(
+    title: String,
+    painter: androidx.compose.ui.graphics.painter.Painter,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    iconColor: Color = NeoColors.Lavender,
+    cardColor: Color = MaterialTheme.colorScheme.surface,
+    onClick: () -> Unit
+) {
+    NeoCard(
+        modifier = modifier.fillMaxWidth(),
+        color = cardColor,
+        shape = RoundedCornerShape(18.dp),
+        shadow = 3.dp,
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            NeoCard(color = iconColor, shape = androidx.compose.foundation.shape.CircleShape, shadow = 0.dp) {
+                androidx.compose.material3.Icon(
+                    painter = painter,
+                    contentDescription = null,
+                    tint = NeoColors.Charcoal,
+                    modifier = Modifier
+                        .padding(9.dp)
+                        .size(22.dp)
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 14.dp)
+            ) {
+                Text(text = title, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
     }
 }
