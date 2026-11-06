@@ -663,9 +663,7 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
 
 @Composable
 private fun GameHeader(uiState: GameUiState, settings: GameSettings) {
-    val total = uiState.size * uiState.size
-    val filled = uiState.gameBoard.sumOf { row -> row.count { it.value != 0 } }
-    val percent = if (total > 0) filled * 100 / total else 0
+    val percent = filledPercent(uiState.gameBoard)
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
         verticalAlignment = Alignment.Bottom,
