@@ -434,4 +434,49 @@
     <string name="victory_hints">Dicas</string>
     <string name="victory_level">Nível</string>
     <string name="defeat_title">Fim de jogo</string>
+
+    <!-- Textos que estavam so em ingles -->
+    <string name="onboard_settings_description">Ajuste o app do seu jeito</string>
+    <string name="app_version">Versão %1$s (%2$s)</string>
+    <string name="hosted_weblate">Você pode ajudar com a tradução no Hosted Weblate</string>
+    <string name="perf_appearance_summary">Tema escuro, esquema de cores, tema do tabuleiro, formato de data…</string>
+    <string name="perf_gameplay_summary">Método de entrada, limite de erros, cronômetro…</string>
+    <string name="perf_assistance_summary">Verificação de erros, destacar valores idênticos, usos restantes…</string>
+    <string name="perf_other_summary">Lembrar tipo e dificuldade, manter a tela ligada, redefinir estatísticas…</string>
+    <string name="pref_board_theme_summary">Aplicar cores de destaque, linhas de posição, tamanho da fonte…</string>
+    <string name="action_share_crash_log">Compartilhar registro de falha</string>
+    <string name="action_restart_app">Reiniciar o app</string>
+    <string name="crash_screen_title">Ops, algo deu errado</string>
+    <string name="action_generate">Gerar</string>
+    <string name="generating_number_of">Gerando %1$s/%2$s</string>
+    <string name="hint_full_house_group_detail">A célula %1$s é a última vazia deste bloco, então você pode preenchê-la com o %2$s</string>
+    <string name="hint_full_house_group_title">Casa cheia</string>
+    <string name="hint_naked_single_title">Candidato único</string>
+    <string name="hint_naked_single_detail">A célula %1$s só tem um valor possível, então você pode colocar o %2$s nela</string>
+    <string name="hint_hidden_single_title">Único escondido</string>
+    <string name="hint_hidden_single_detail">A célula %1$s é a única deste grupo onde o %2$s pode ficar</string>
+    <string name="advanced_hint_title">Dica avançada</string>
+    <string name="hint_wrong_value_title">Valor errado</string>
+    <string name="hint_wron_value_detail">O valor %1$s na célula %2$s está errado</string>
+    <string name="advanced_hint_summary">Um sistema de dicas experimental</string>
+    <string name="nav_back">Voltar</string>
+    <string name="action_apply">Aplicar</string>
+    <string name="advanced_hint_in_development">Mais técnicas em desenvolvimento…</string>
+    <string name="label_beta">Beta</string>
+    <string name="settings_advanced_hint_category_techniques">Técnicas</string>
+    <string name="action_retry">Tentar de novo</string>
+    <string name="game_load_error">Não foi possível carregar o jogo</string>
+    <string name="game_save_error">Não foi possível salvar o jogo</string>
+    <string name="advanced_hint_no_hint">Não foi possível dar uma dica. Talvez esteja difícil demais por enquanto</string>
+    <string name="advanced_hint_no_hint_title">Sem dica</string>
+    <string name="export_empty_cell">Célula vazia</string>
+    <string name="font_size_automatic">Automático</string>
+    <string name="generation_save_error_title">Não foi possível salvar o quebra-cabeça</string>
+    <string name="generation_save_error_message">O quebra-cabeça está pronto, mas não pôde ser salvo</string>
+    <string name="generation_retry">Tentar de novo</string>
+    <string name="generation_saved_progress">Os quebra-cabeças já adicionados à pasta serão mantidos</string>
+    <plurals name="last_x_games">
+        <item quantity="one">Último %1$d jogo</item>
+        <item quantity="other">Últimos %1$d jogos</item>
+    </plurals>
 </resources>
