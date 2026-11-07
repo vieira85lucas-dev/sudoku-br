@@ -77,6 +77,9 @@ class AppSettingsManager(context: Context) {
     // custom date format
     private val dateFormatKey = stringPreferencesKey("date_format")
 
+    // nome do jogador (mostrado na tela inicial)
+    private val userNameKey = stringPreferencesKey("user_name")
+
     // whether to save the last selected type and difficulty in the HomeScreen
     private val saveSelectedGameDifficultyTypeKey =
         booleanPreferencesKey("save_last_selected_difficulty_type")
@@ -254,6 +257,16 @@ class AppSettingsManager(context: Context) {
         prefs[funKeyboardOverNumKey] ?: PreferencesConstants.DEFAULT_FUN_KEYBOARD_OVER_NUM
     }
 
+    suspend fun setUserName(name: String) {
+        dataStore.edit { settings ->
+            settings[userNameKey] = name.trim().take(MAX_USER_NAME_LENGTH)
+        }
+    }
+
+    val userName = dataStore.data.map { prefs ->
+        prefs[userNameKey] ?: ""
+    }
+
     suspend fun setDateFormat(format: String) {
         dataStore.edit { settings ->
             settings[dateFormatKey] = format
@@ -422,6 +435,7 @@ class AppSettingsManager(context: Context) {
     }
 
     companion object {
+        const val MAX_USER_NAME_LENGTH = 20
         fun dateFormat(format: String): DateTimeFormatter = when (format) {
             "" -> {
                 DateTimeFormatter.ofPattern(

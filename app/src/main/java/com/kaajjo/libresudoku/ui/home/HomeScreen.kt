@@ -24,6 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.AlertDialog
+import com.kaajjo.libresudoku.data.datastore.AppSettingsManager
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -105,6 +107,8 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navigator: Destinatio
     var continueGameDialog by rememberSaveable { mutableStateOf(false) }
     var lastGamesBottomSheet by rememberSaveable { mutableStateOf(false) }
 
+    val userName by viewModel.userName.collectAsStateWithLifecycle()
+    var nameDialog by rememberSaveable { mutableStateOf(false) }
     val lastGame by viewModel.lastSavedGame.collectAsStateWithLifecycle()
     val lastGames by viewModel.lastGames.collectAsStateWithLifecycle(initialValue = emptyMap())
     val saveSelectedGameDifficultyType by
@@ -171,8 +175,21 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navigator: Destinatio
             onPlay = {
                 if (continuableGame != null) continueGameDialog = true else viewModel.startGame()
             },
-            onHelp = { navigator.navigate(HowToPlayScreenDestination()) }
+            onHelp = { navigator.navigate(HowToPlayScreenDestination()) },
+            userName = userName,
+            onEditName = { nameDialog = true }
         )
+
+        if (nameDialog) {
+            NameDialog(
+                current = userName,
+                onDismiss = { nameDialog = false },
+                onSave = {
+                    viewModel.setUserName(it)
+                    nameDialog = false
+                }
+            )
+        }
 
         if (continueGameDialog) {
             AlertDialog(
@@ -253,6 +270,8 @@ internal fun HomeContent(
     onContinue: () -> Unit,
     onPlay: () -> Unit,
     onHelp: () -> Unit,
+    userName: String,
+    onEditName: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -263,7 +282,7 @@ internal fun HomeContent(
             .padding(top = 16.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        HomeHeader(onHelp = onHelp)
+        HomeHeader(userName = userName, onEditName = onEditName, onHelp = onHelp)
 
         Text(
             text = buildAnnotatedString {
@@ -317,30 +336,81 @@ internal fun HomeContent(
     }
 }
 
+/**
+ * Cabecalho: a esquerda o jogador ("Ola, nome!", toque para mudar o nome);
+ * a direita o logo e o nome do app, e o botao "?" do tutorial.
+ */
 @Composable
-private fun HomeHeader(onHelp: () -> Unit) {
+private fun HomeHeader(userName: String, onEditName: () -> Unit, onHelp: () -> Unit) {
+    val shownName = userName.ifBlank { stringResource(R.string.home_default_name) }
     Row(verticalAlignment = Alignment.CenterVertically) {
         NeoCard(
-            modifier = Modifier.size(44.dp),
+            modifier = Modifier.size(40.dp),
             color = NeoColors.Lavender,
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(14.dp),
+            shadow = 2.dp,
+            onClick = onEditName
+        ) {
+            val initial = userName.trim().firstOrNull()?.uppercaseChar()
+            if (initial != null) {
+                Text(
+                    text = initial.toString(),
+                    modifier = Modifier.align(Alignment.Center),
+                    color = NeoColors.Charcoal,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 20.sp
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Rounded.Person,
+                    contentDescription = stringResource(R.string.home_edit_name),
+                    tint = NeoColors.Charcoal,
+                    modifier = Modifier.align(Alignment.Center).size(24.dp)
+                )
+            }
+        }
+        Spacer(Modifier.width(10.dp))
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .clickable(onClick = onEditName)
+        ) {
+            Text(
+                text = stringResource(R.string.home_hello).uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = shownName,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            )
+        }
+        Spacer(Modifier.width(8.dp))
+        NeoCard(
+            modifier = Modifier.size(32.dp),
+            color = NeoColors.Lavender,
+            shape = RoundedCornerShape(11.dp),
             shadow = 2.dp
         ) {
             Icon(
                 imageVector = Icons.Rounded.GridView,
                 contentDescription = null,
                 tint = NeoColors.Charcoal,
-                modifier = Modifier.align(Alignment.Center).size(24.dp)
+                modifier = Modifier.align(Alignment.Center).size(18.dp)
             )
         }
-        Spacer(Modifier.width(12.dp))
+        Spacer(Modifier.width(6.dp))
         Text(
             text = stringResource(R.string.app_name),
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
-            modifier = Modifier.weight(1f)
+            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.ExtraBold),
+            maxLines = 1
         )
+        Spacer(Modifier.width(8.dp))
         NeoCard(
-            modifier = Modifier.size(44.dp),
+            modifier = Modifier.size(34.dp),
             color = NeoColors.Yellow,
             shape = androidx.compose.foundation.shape.CircleShape,
             shadow = 2.dp,
@@ -350,10 +420,34 @@ private fun HomeHeader(onHelp: () -> Unit) {
                 imageVector = Icons.AutoMirrored.Rounded.HelpOutline,
                 contentDescription = stringResource(R.string.how_to_play_help),
                 tint = NeoColors.Charcoal,
-                modifier = Modifier.align(Alignment.Center).size(26.dp)
+                modifier = Modifier.align(Alignment.Center).size(21.dp)
             )
         }
     }
+}
+
+/** Pergunta como chamar o jogador; o nome aparece no cabecalho da tela inicial. */
+@Composable
+private fun NameDialog(current: String, onDismiss: () -> Unit, onSave: (String) -> Unit) {
+    var text by rememberSaveable { mutableStateOf(current) }
+    AlertDialog(
+        title = { Text(stringResource(R.string.home_name_dialog_title)) },
+        text = {
+            androidx.compose.material3.OutlinedTextField(
+                value = text,
+                onValueChange = { text = it.take(AppSettingsManager.MAX_USER_NAME_LENGTH) },
+                singleLine = true,
+                label = { Text(stringResource(R.string.home_name_dialog_hint)) }
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = { onSave(text) }) { Text(stringResource(R.string.action_save)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+        },
+        onDismissRequest = onDismiss
+    )
 }
 
 @Composable
@@ -430,9 +524,9 @@ private fun DifficultyGrid(
     selected: GameDifficulty,
     onSelect: (GameDifficulty) -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         difficulties.chunked(2).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 row.forEach { difficulty ->
                     val style = difficultyStyle(difficulty)
                     DifficultyTile(
@@ -469,28 +563,34 @@ private fun DifficultyTile(
     NeoCard(
         modifier = modifier,
         color = if (selected) accent else MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(24.dp),
-        shadow = if (selected) 4.dp else 0.dp,
+        shape = RoundedCornerShape(18.dp),
+        shadow = if (selected) 3.dp else 0.dp,
         onClick = onClick
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(30.dp)
                     .background(accent, CircleShape)
                     .border(2.dp, NeoColors.Charcoal, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(imageVector = icon, contentDescription = null, tint = NeoColors.Charcoal)
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = NeoColors.Charcoal,
+                    modifier = Modifier.size(18.dp)
+                )
             }
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.width(8.dp))
             Text(
                 text = label,
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
+                maxLines = 1,
                 color = if (selected) NeoColors.Charcoal else MaterialTheme.colorScheme.onSurface
             )
         }

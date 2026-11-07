@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -55,6 +56,13 @@ class HomeViewModel
         GameType.Killer12x12,
         GameType.Killer6x6
     )
+
+    val userName = appSettingsManager.userName
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "")
+
+    fun setUserName(name: String) {
+        viewModelScope.launch { appSettingsManager.setUserName(name) }
+    }
 
     val lastSelectedGameDifficultyType = appSettingsManager.lastSelectedGameDifficultyType
     val saveSelectedGameDifficultyType = appSettingsManager.saveSelectedGameDifficultyType

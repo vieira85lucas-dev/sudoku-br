@@ -479,4 +479,12 @@
         <item quantity="one">Último %1$d jogo</item>
         <item quantity="other">Últimos %1$d jogos</item>
     </plurals>
+
+    <!-- Cabecalho da tela inicial -->
+    <string name="home_hello">Olá,</string>
+    <string name="home_greeting">Olá, %1$s!</string>
+    <string name="home_default_name">jogador</string>
+    <string name="home_edit_name">Mudar nome</string>
+    <string name="home_name_dialog_title">Como podemos te chamar?</string>
+    <string name="home_name_dialog_hint">Seu nome</string>
 </resources>

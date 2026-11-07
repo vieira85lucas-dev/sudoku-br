@@ -489,4 +489,12 @@
     <string name="victory_hints">Hints</string>
     <string name="victory_level">Level</string>
     <string name="defeat_title">Game over</string>
+
+    <!-- Home header -->
+    <string name="home_hello">Hi,</string>
+    <string name="home_greeting">Hi, %1$s!</string>
+    <string name="home_default_name">player</string>
+    <string name="home_edit_name">Change name</string>
+    <string name="home_name_dialog_title">What should we call you?</string>
+    <string name="home_name_dialog_hint">Your name</string>
 </resources>
