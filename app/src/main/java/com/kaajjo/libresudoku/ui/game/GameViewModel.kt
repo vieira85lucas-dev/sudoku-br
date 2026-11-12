@@ -132,7 +132,7 @@ class GameViewModel @Inject constructor(
                 appSettingsManager.resetTimerEnabled.setting { copy(resetTimerOnRestart = it) },
                 appSettingsManager.hintsDisabled.setting { copy(disableHints = it) },
                 appSettingsManager.inputMethod.setting { copy(inputMethod = it) },
-                appSettingsManager.advancedHintEnabled.setting { copy(advancedHintEnabled = it) }
+                appSettingsManager.advancedHintEnabled.setting { copy(advancedHintEnabled = it && PreferencesConstants.ADVANCED_HINT_AVAILABLE) }
             ) { mutations ->
                 mutations.fold(GameSettings()) { settings, mutate -> mutate(settings) }
             }.collect { settings ->

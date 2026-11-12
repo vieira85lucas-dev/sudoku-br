@@ -12,7 +12,7 @@ class PreferencesConstants {
         const val DEFAULT_HINTS_DISABLED = false
         const val DEFAULT_SHOW_TIMER = true
         const val DEFAULT_GAME_RESET_TIMER = true
-        const val DEFAULT_HIGHLIGHT_MISTAKES = 1
+        const val DEFAULT_HIGHLIGHT_MISTAKES = 2
         const val DEFAULT_HIGHLIGHT_IDENTICAL = true
         const val DEFAULT_REMAINING_USES = true
         const val DEFAULT_POSITION_LINES = true
@@ -25,6 +25,12 @@ class PreferencesConstants {
         const val DEFAULT_AUTOBACKUP_INTERVAL = 24L
         const val DEFAULT_AUTO_BACKUPS_NUMBER = 3
         const val DEFAULT_ADVANCED_HINT = false
+
+        /**
+         * A dica avancada (resolvedor) da dica gratis e sem limite, o que fura a regra
+         * "dicas so por video". Fica indisponivel no Sudoku BR.
+         */
+        const val ADVANCED_HINT_AVAILABLE = false
 
         const val DEFAULT_DYNAMIC_COLORS = false
         const val DEFAULT_DARK_THEME = 0

@@ -454,13 +454,38 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `wrong value advanced hint clears the cell in cell first mode`() = runGameTest {
-        assertWrongValueHintClearsCell(inputMethod = 0)
+    fun `advanced hint stays unavailable even when the saved setting is on`() = runGameTest {
+        stubSettings(GameSettings(remainingUse = false, advancedHintEnabled = true))
+        val viewModel = loadedGame()
+        runCurrent()
+
+        assertFalse(viewModel.uiState.value.settings.advancedHintEnabled)
+        viewModel.sendEvent(GameUiEvent.RequestAdvancedHint)
+        runCurrent()
+        assertFalse(viewModel.uiState.value.advancedHintMode)
+        assertFalse(viewModel.uiState.value.advancedHintLoading)
     }
 
     @Test
-    fun `wrong value advanced hint clears the cell in digit first mode`() = runGameTest {
-        assertWrongValueHintClearsCell(inputMethod = 1)
+    fun `defaults are cell first input and mistake checking against the solution`() {
+        val defaults = GameSettings()
+        assertEquals(0, defaults.inputMethod)
+        assertEquals(2, defaults.mistakesMethod)
+    }
+
+    @Test
+    fun `a wrong digit that breaks no rule is flagged right away with the default settings`() = runGameTest {
+        stubSettings(GameSettings(remainingUse = false))
+        val viewModel = loadedGame()
+        runCurrent()
+        // celula (0,0): a solucao e 5. O 1 nao repete na linha/coluna/bloco, mas esta errado.
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        viewModel.sendEvent(GameUiEvent.NumberTapped(1))
+        runCurrent()
+        val cell = viewModel.uiState.value.gameBoard[0][0]
+        assertEquals(1, cell.value)
+        assertTrue(cell.error)
+        assertEquals(1, viewModel.uiState.value.mistakesMade)
     }
 
     @Test
@@ -565,40 +590,6 @@ class GameViewModelTest {
         advanceTimeBy(1_000)
         runCurrent()
         assertEquals("01:16", viewModel.uiState.value.timeText)
-    }
-
-    private suspend fun TestScope.assertWrongValueHintClearsCell(inputMethod: Int) {
-        stubSettings(GameSettings(inputMethod = inputMethod, remainingUse = false, advancedHintEnabled = true))
-        val viewModel = loadedGame()
-        if (inputMethod == 0) {
-            viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
-            viewModel.sendEvent(GameUiEvent.NumberTapped(3))
-        } else {
-            viewModel.sendEvent(GameUiEvent.NumberTapped(3))
-            viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
-        }
-        runCurrent()
-        val beforeHint = viewModel.uiState.value
-        assertEquals(3, beforeHint.gameBoard[0][0].value)
-
-        viewModel.sendEvent(GameUiEvent.RequestAdvancedHint)
-        runCurrent()
-        // Hint computation uses Default; this timeout measures real time, not the test clock.
-        val hintState = withContext(Dispatchers.Default) {
-            withTimeout(5_000) {
-                viewModel.uiState.first { !it.advancedHintLoading && it.advancedHintData != null }
-            }
-        }
-        assertEquals(3, hintState.advancedHintData?.targetCell?.value)
-
-        viewModel.sendEvent(GameUiEvent.ApplyAdvancedHint)
-        runCurrent()
-        assertEquals(0, viewModel.uiState.value.gameBoard[0][0].value)
-        assertFalse(viewModel.uiState.value.advancedHintMode)
-        assertEquals(3, beforeHint.gameBoard[0][0].value)
-        viewModel.sendEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Undo))
-        runCurrent()
-        assertEquals(3, viewModel.uiState.value.gameBoard[0][0].value)
     }
 
     private fun runGameTest(test: suspend TestScope.() -> Unit) = runTest(dispatcher) {

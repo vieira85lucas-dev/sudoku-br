@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                     2 -> true
                     else -> isSystemInDarkTheme()
                 },
-                dynamicColor = dynamicColors,
+                dynamicColor = false, // a paleta do app e fixa
                 amoled = amoledBlack,
                 colorSeed = colorSeed,
                 paletteStyle = paletteStyle

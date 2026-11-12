@@ -105,25 +105,6 @@ fun SettingsCategoriesScreen(
 
             item {
                 PreferenceRow(
-                    title = stringResource(R.string.advanced_hint_title),
-                    subtitle = stringResource(R.string.advanced_hint_summary),
-                    onClick = { navigator.navigate(SettingsAdvancedHintScreenDestination()) },
-                    painter = rememberVectorPainter(Icons.Rounded.AutoAwesome)
-                )
-            }
-
-            item {
-                PreferenceRow(
-                    title = stringResource(R.string.pref_app_language),
-                    subtitle = currentLanguage,
-                    onClick = {
-                        navigator.navigate(SettingsLanguageScreenDestination())
-                    },
-                    painter = rememberVectorPainter(Icons.Outlined.Language)
-                )
-            }
-            item {
-                PreferenceRow(
                     title = stringResource(R.string.pref_other),
                     subtitle = stringResource(R.string.perf_other_summary),
                     onClick = {
