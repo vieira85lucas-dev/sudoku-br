@@ -3,14 +3,18 @@ package com.kaajjo.libresudoku.ui.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import com.kaajjo.libresudoku.ui.theme.ColorUtils.blend
 import com.kaajjo.libresudoku.ui.theme.ColorUtils.harmonizeWithPrimary
 
 object BoardColors {
-    /** Numeros colocados pelo jogador: roxo vivo, bem diferente dos numeros iniciais. */
+    /**
+     * Numeros colocados pelo jogador: roxo vivo no claro e amarelo no escuro,
+     * sempre bem diferentes dos numeros iniciais.
+     */
     inline val foregroundColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.secondary
+        get() = if (isDark) NeoColors.Yellow else MaterialTheme.colorScheme.secondary
 
     inline val notesColor: Color
         @Composable
@@ -25,9 +29,10 @@ object BoardColors {
         @Composable
         get() = MaterialTheme.colorScheme.error
 
+    /** Destaques (celula, linha, coluna e numeros iguais): lavanda no claro, cinza claro no escuro. */
     inline val highlightColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.primary
+        get() = if (isDark) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.primary
 
     inline val thickLineColor: Color
         @Composable
@@ -35,7 +40,12 @@ object BoardColors {
 
     inline val thinLineColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.outline.copy(0.35f)
+        get() = MaterialTheme.colorScheme.outline.copy(if (isDark) 0.5f else 0.35f)
+
+    /** Verdadeiro quando o fundo do app e escuro. */
+    inline val isDark: Boolean
+        @Composable
+        get() = MaterialTheme.colorScheme.background.luminance() < 0.5f
 }
 
 interface SudokuBoardColors {
