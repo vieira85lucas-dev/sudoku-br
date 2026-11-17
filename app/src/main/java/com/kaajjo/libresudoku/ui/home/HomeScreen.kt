@@ -161,7 +161,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navigator: Destinatio
                     title = lastBoard?.let { board ->
                         "${stringResource(board.difficulty.resName)} ${stringResource(board.type.resName)}"
                     } ?: stringResource(R.string.action_continue),
-                    percent = filledPercent(it.currentBoard),
+                    percent = filledPercentCorrect(it.currentBoard, lastBoard?.initialBoard, lastBoard?.solvedBoard),
                     time = it.timer.toKotlinDuration().toFormattedString()
                 )
             },
@@ -595,12 +595,6 @@ private fun DifficultyTile(
             )
         }
     }
-}
-
-/** Percentual de casas preenchidas (as dadas contam), a partir do tabuleiro salvo. */
-private fun filledPercent(board: String): Int {
-    if (board.isEmpty()) return 0
-    return board.count { it != '0' && it != '.' } * 100 / board.length
 }
 
 @Composable
