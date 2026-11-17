@@ -47,7 +47,8 @@ fun KeyboardItem(
     remainingUses: Int? = null,
     onClick: (Int) -> Unit,
     onLongClick: (Int) -> Unit = { },
-    selected: Boolean = false
+    selected: Boolean = false,
+    compact: Boolean = false
 ) {
     val mutableInteractionSource by remember { mutableStateOf(MutableInteractionSource()) }
     val localView = LocalView.current
@@ -106,7 +107,8 @@ fun DefaultGameKeyboard(
     onClick: (Int) -> Unit,
     onLongClick: (Int) -> Unit,
     size: Int,
-    selected: Int = 0
+    selected: Int = 0,
+    compact: Boolean = false
 ) {
     val numbers by remember(size) { mutableStateOf((1..size).toList()) }
 
@@ -147,7 +149,8 @@ fun DefaultGameKeyboard(
                                     } else {
                                         null
                                     },
-                                    selected = number == selected
+                                    selected = number == selected,
+                                    compact = compact
                                 )
                             }
                         }
@@ -179,7 +182,8 @@ fun DefaultGameKeyboard(
                         } else {
                             null
                         },
-                        selected = number == selected
+                        selected = number == selected,
+                                    compact = compact
                     )
                 }
             }

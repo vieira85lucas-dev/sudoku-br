@@ -412,7 +412,7 @@
 
     <!-- Pontuacao VP e niveis -->
     <string name="vp_unit">VP</string>
-    <string name="vp_total">Total VP</string>
+    <string name="vp_total">VP total</string>
     <string name="vp_earned">VP ganhos</string>
     <string name="level_label">Nível %1$d</string>
     <string name="level_short">Nv %1$d</string>

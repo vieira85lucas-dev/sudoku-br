@@ -48,6 +48,7 @@ import com.kaajjo.libresudoku.ui.theme.ColorUtils.harmonizeWithPrimary
 import com.kaajjo.libresudoku.ui.util.findActivity
 import com.kaajjo.libresudoku.ui.util.getCurrentLocaleTag
 import com.kaajjo.libresudoku.ui.util.getLangs
+import com.kaajjo.libresudoku.ui.util.rememberUserChoseLanguage
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -72,16 +73,6 @@ fun SettingsLanguageScreen(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            item {
-                HelpTranslateCard(
-                    onClick = {
-                        uriHandler.openUri(WEBLATE_ENGAGE)
-                    }
-                )
-            }
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
-            }
             items(appLanguages.toList()) { (langCode, langName) ->
                 LanguageItem(
                     languageName = langName,
@@ -94,6 +85,7 @@ fun SettingsLanguageScreen(
                             LocaleListCompat.forLanguageTags(langCode)
                         }
                         AppCompatDelegate.setApplicationLocales(locale)
+                        rememberUserChoseLanguage(context)
                         currentLanguage = getCurrentLocaleTag()
 
                         // react to locale change only on android < 13

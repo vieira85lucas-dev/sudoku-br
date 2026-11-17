@@ -49,6 +49,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
@@ -101,6 +103,10 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.rounded.Timer
@@ -202,7 +208,9 @@ fun GameScreen(
 internal fun GameScreenContent(
     uiState: GameUiState,
     onEvent: (GameUiEvent) -> Unit,
-    restartButtonAngle: Float
+    restartButtonAngle: Float,
+    // So para testes de desenho: forca o modo compacto ligado ou desligado.
+    compactOverride: Boolean? = null
 ) {
     val settings = uiState.settings
     val sudokuUtils = remember { SudokuUtils() }
@@ -329,15 +337,30 @@ internal fun GameScreenContent(
             return@Scaffold
         }
 
-        Column(
-            modifier = Modifier.padding(scaffoldPaddings).padding(horizontal = 12.dp),
-            verticalArrangement = Arrangement.SpaceEvenly
-        ) {
+        BoxWithConstraints(modifier = Modifier.padding(scaffoldPaddings).fillMaxSize()) {
+            val availableHeight = maxHeight
+            val availableHeightPx = with(LocalDensity.current) { availableHeight.roundToPx() }
+            // Mede o conteudo: se passar do espaco livre, entra o modo compacto (cabecalho, teclado e
+            // botoes mais baixos). Uma vez compacto, continua assim para esse tamanho de tela.
+            var measuredCompact by remember(availableHeightPx, uiState.size) { mutableStateOf(false) }
+            val compact = compactOverride ?: measuredCompact
+            // Rede de seguranca: em telas muito pequenas, mesmo compacto pode nao caber; ai a tela rola.
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .heightIn(min = availableHeight)
+                    .onSizeChanged { size ->
+                        if (!measuredCompact && needsCompactLayout(size.height, availableHeightPx)) measuredCompact = true
+                    }
+                    .padding(horizontal = 12.dp),
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
             AnimatedVisibility(visible = !uiState.endGame) {
-                GameHeader(uiState = uiState, settings = settings)
+                GameHeader(uiState = uiState, settings = settings, compact = compact)
             }
 
-            Box(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+            Box(modifier = Modifier.fillMaxWidth().padding(vertical = if (compact) 6.dp else 12.dp)) {
                 Column(modifier = Modifier.align(Alignment.Center)) {
                     AnimatedVisibility(
                         visible = !uiState.gamePlaying && !uiState.endGame,
@@ -373,11 +396,12 @@ internal fun GameScreenContent(
                     identicalNumbersHighlight = settings.identicalHighlight,
                     errorsHighlight = settings.mistakesMethod != 0,
                     positionLines = settings.positionLines,
-                    notesToHighlight = if (uiState.digitFirstNumber > 0) {
-                        uiState.notes.filter { it.value == uiState.digitFirstNumber }
-                    } else {
-                        emptyList()
-                    },
+                    notesToHighlight = notesToHighlight(
+                        notes = uiState.notes,
+                        digitFirstNumber = uiState.digitFirstNumber,
+                        board = uiState.gameBoard,
+                        selected = uiState.currCell
+                    ),
                     enabled = uiState.gamePlaying && !uiState.endGame,
                     questions = !(uiState.gamePlaying || uiState.endGame) && SDK_INT < Build.VERSION_CODES.R,
                     renderNotes = uiState.renderNotes && !uiState.showSolution,
@@ -397,7 +421,7 @@ internal fun GameScreenContent(
                 } else {
                     AnimatedContent(!uiState.endGame, label = "Game controls") { playing ->
                         if (playing) {
-                            GameControls(uiState, onEvent)
+                            GameControls(uiState, onEvent, compact)
                         } else {
                             AfterGameStats(
                                 modifier = Modifier.fillMaxWidth(),
@@ -416,6 +440,7 @@ internal fun GameScreenContent(
                     }
                 }
             }
+                    }
         }
     }
 
@@ -541,7 +566,7 @@ private fun GameHintContent(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit
 }
 
 @Composable
-private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
+private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit, compact: Boolean = false) {
     val adsManager = LocalAdsManager.current
     val context = LocalContext.current
     val activity = context.findActivity()
@@ -555,11 +580,12 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
             remainingUses = uiState.remainingUsesList.takeIf { uiState.settings.remainingUse },
             onClick = { onEvent(GameUiEvent.NumberTapped(it)) },
             onLongClick = { onEvent(GameUiEvent.NumberTapped(it, longTap = true)) },
-            selected = uiState.digitFirstNumber
+            selected = uiState.digitFirstNumber,
+            compact = compact
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(vertical = if (compact) 4.dp else 8.dp)
         ) {
             Box(modifier = Modifier.weight(1f)) {
                 UndoRedoMenu(
@@ -570,6 +596,7 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
                 ToolbarItem(
                     painter = painterResource(R.drawable.ic_round_undo_24),
                     label = stringResource(R.string.game_tool_undo),
+                    compact = compact,
                     onClick = { onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Undo)) },
                     onLongClick = { onEvent(GameUiEvent.SetUndoRedoMenuVisible(true)) }
                 )
@@ -579,6 +606,7 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
                     modifier = Modifier.weight(1f),
                     painter = painterResource(R.drawable.ic_lightbulb_stars_24),
                     label = stringResource(R.string.game_tool_hint),
+                    compact = compact,
                     onClick = {
                         val premium = adsManager?.adsRemoved?.value == true
                         when {
@@ -608,6 +636,7 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
                 ToolbarItem(
                     painter = painterResource(R.drawable.ic_round_edit_24),
                     label = stringResource(R.string.game_tool_notes),
+                    compact = compact,
                     toggled = uiState.notesToggled,
                     onClick = { onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Note)) },
                     onLongClick = { onEvent(GameUiEvent.SetNotesMenuVisible(true)) }
@@ -617,6 +646,7 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
                 modifier = Modifier.weight(1f),
                 painter = painterResource(R.drawable.ic_eraser_24),
                 label = stringResource(R.string.game_tool_erase),
+                    compact = compact,
                 toggled = uiState.eraseButtonToggled,
                 onClick = { onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Remove)) },
                 onLongClick = { onEvent(GameUiEvent.ToggleEraseMode) }
@@ -662,10 +692,10 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit) {
 }
 
 @Composable
-private fun GameHeader(uiState: GameUiState, settings: GameSettings) {
+private fun GameHeader(uiState: GameUiState, settings: GameSettings, compact: Boolean = false) {
     val percent = filledPercent(uiState.gameBoard)
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 4.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = if (compact) 4.dp else 12.dp, bottom = 4.dp),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -677,11 +707,13 @@ private fun GameHeader(uiState: GameUiState, settings: GameSettings) {
                 letterSpacing = 1.sp,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
             )
-            Text(
-                text = stringResource(R.string.game_title),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.ExtraBold
-            )
+            if (!compact) {
+                Text(
+                    text = stringResource(R.string.game_title),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            }
             if (settings.mistakesLimit && settings.mistakesMethod != 0) {
                 Text(
                     text = stringResource(

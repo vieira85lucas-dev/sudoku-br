@@ -46,6 +46,7 @@ fun ToolbarItem(
     painter: Painter,
     toggled: Boolean = false,
     label: String? = null,
+    compact: Boolean = false,
     onClick: () -> Unit = { },
     onLongClick: () -> Unit = { }
 ) {
@@ -66,7 +67,7 @@ fun ToolbarItem(
                     onClick = onClick,
                     onLongClick = onLongClick
                 )
-                .padding(vertical = 10.dp),
+                .padding(vertical = if (compact) 6.dp else 10.dp),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -75,7 +76,8 @@ fun ToolbarItem(
                 tint = if (toggled) NeoColors.Charcoal else MaterialTheme.colorScheme.onSurface
             )
         }
-        if (label != null) {
+        // No modo compacto o nome some (continua como descricao para leitores de tela).
+        if (label != null && !compact) {
             Text(
                 text = label.uppercase(),
                 fontSize = 10.sp,

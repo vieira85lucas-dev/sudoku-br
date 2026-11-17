@@ -24,6 +24,7 @@ val useTestAds = providers.gradleProperty("testAds").orNull == "true"
 val appVersionCode = providers.gradleProperty("versionCode").orNull?.toIntOrNull() ?: 1
 
 android {
+    testOptions { unitTests { isIncludeAndroidResources = true } }
     namespace = "com.kaajjo.libresudoku"
     compileSdk = 35
 

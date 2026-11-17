@@ -75,10 +75,15 @@ fun DrawScope.drawNotes(
 
 
             if (notesToHighlight.contains(note)) {
-                canvas.nativeCanvas.drawCircle(
-                    note.col * cellSize + cellSizeDivWidth / 2f + (cellSizeDivWidth * noteRow) + horizontalPadding,
-                    note.row * cellSize + noteBounds.height() * 1.5f + killerSumBounds.height() + (cellDivHeight * noteCol) - (noteBounds.height() * 0.5f),
-                    noteTextMeasure * 1.1f,
+                // Quadradinho de fundo atras da anotacao, como nos numeros destacados.
+                val centerX = note.col * cellSize + cellSizeDivWidth / 2f + (cellSizeDivWidth * noteRow) + horizontalPadding
+                val centerY = note.row * cellSize + noteBounds.height() * 1.5f + killerSumBounds.height() +
+                        (cellDivHeight * noteCol) - (noteBounds.height() * 0.5f)
+                val half = maxOf(noteTextMeasure * 0.85f, noteBounds.height() * 0.8f)
+                canvas.nativeCanvas.drawRoundRect(
+                    android.graphics.RectF(centerX - half, centerY - half, centerX + half, centerY + half),
+                    half * 0.3f,
+                    half * 0.3f,
                     highlightPaint
                 )
             }
@@ -189,4 +194,12 @@ fun DrawScope.drawCrossSelection(
             }
         }
     }
+}
+
+/** Quanto crescem os numeros das anotacoes, conforme o tamanho do tabuleiro. */
+fun noteTextScale(boardSize: Int): Float = when (boardSize) {
+    6 -> 1.15f
+    9 -> 1.35f
+    12 -> 1.2f
+    else -> 1f
 }

@@ -16,9 +16,10 @@ object BoardColors {
         @Composable
         get() = if (isDark) NeoColors.Yellow else MaterialTheme.colorScheme.secondary
 
+    /** Anotacoes: cor forte (quase a do texto) para ler bem mesmo em tamanho pequeno. */
     inline val notesColor: Color
         @Composable
-        get() = MaterialTheme.colorScheme.onSurfaceVariant
+        get() = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f)
 
     /** Numeros iniciais do jogo: grafite (ou branco no escuro), em negrito. */
     inline val altForegroundColor: Color

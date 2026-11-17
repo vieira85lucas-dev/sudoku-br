@@ -148,8 +148,10 @@ fun Board(
                 }
             }
         }
-        val noteSizePx = with(LocalDensity.current) { (cellSizeDivWidth * 0.8f).toSp().toPx() }
-        val killerSumSizePx = with(LocalDensity.current) { noteSizePx * 1.1f }
+        val baseNoteSizePx = with(LocalDensity.current) { (cellSizeDivWidth * 0.8f).toSp().toPx() }
+        // As anotacoes ficam maiores (e em negrito) para serem lidas sem esforco.
+        val noteSizePx = baseNoteSizePx * noteTextScale(size)
+        val killerSumSizePx = baseNoteSizePx * 1.1f
 
         // Linhas dos blocos bem mais grossas que as das celulas, para enxergar os grupos.
         val thinLineWidth = with(LocalDensity.current) { 1.dp.toPx() }
@@ -197,6 +199,7 @@ fun Board(
                     color = notesColor.toArgb()
                     isAntiAlias = true
                     textSize = noteSizePx
+                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
                 }
             )
         }
@@ -204,7 +207,7 @@ fun Board(
         val noteHighlightPaint by remember {
             mutableStateOf(
                 Paint().apply {
-                    color = highlightColor.copy(alpha = 0.3f).toArgb()
+                    color = highlightColor.copy(alpha = 0.55f).toArgb()
                     isAntiAlias = true
                 }
             )
@@ -231,6 +234,7 @@ fun Board(
                 color = notesColor.toArgb()
                 isAntiAlias = true
                 textSize = noteSizePx
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             }
             errorTextPaint = Paint().apply {
                 color = Color(230, 67, 83).toArgb()

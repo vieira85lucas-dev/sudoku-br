@@ -105,6 +105,16 @@ fun SettingsCategoriesScreen(
 
             item {
                 PreferenceRow(
+                    title = stringResource(R.string.pref_app_language),
+                    subtitle = currentLanguage,
+                    onClick = {
+                        navigator.navigate(SettingsLanguageScreenDestination())
+                    },
+                    painter = rememberVectorPainter(Icons.Outlined.Language)
+                )
+            }
+            item {
+                PreferenceRow(
                     title = stringResource(R.string.pref_other),
                     subtitle = stringResource(R.string.perf_other_summary),
                     onClick = {
