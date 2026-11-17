@@ -18,6 +18,8 @@ import com.kaajjo.libresudoku.data.database.model.Record
 import com.kaajjo.libresudoku.data.database.model.SavedGame
 import com.kaajjo.libresudoku.data.database.model.SudokuBoard
 import com.kaajjo.libresudoku.data.datastore.AppSettingsManager
+import com.kaajjo.libresudoku.data.datastore.GameLimits
+import com.kaajjo.libresudoku.data.datastore.GameLimitsStorage
 import com.kaajjo.libresudoku.data.datastore.ThemeSettingsManager
 import com.kaajjo.libresudoku.domain.repository.RecordRepository
 import com.kaajjo.libresudoku.domain.repository.SavedGameRepository
@@ -65,7 +67,8 @@ class GameViewModel @Inject constructor(
     private val getBoardUseCase: GetBoardUseCase,
     themeSettingsManager: ThemeSettingsManager,
     savedStateHandle: SavedStateHandle,
-    private val getAllRecordsUseCase: GetAllRecordsUseCase
+    private val getAllRecordsUseCase: GetAllRecordsUseCase,
+    private val gameLimitsStorage: GameLimitsStorage
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState = _uiState.asStateFlow()
@@ -89,6 +92,9 @@ class GameViewModel @Inject constructor(
     private var screenResumed = false
     private var playRequested = true
     private var overrideInputMethodDF = false
+
+    // Ultimos limites gravados no aparelho; so grava de novo quando mudam.
+    private var persistedLimits = GameLimits()
 
     // Capture before suspending and write in order, so an autosave cannot overwrite a result
     private data class SaveRequest(
@@ -372,6 +378,8 @@ class GameViewModel @Inject constructor(
                 }.mapIndexed { row, cells ->
                     cells.mapIndexed { col, cell -> cell.copy(locked = initial[row][col].locked) }
                 }
+                val limits = if (saved != null) gameLimitsStorage.get(entity.uid) else GameLimits()
+                persistedLimits = limits
                 val board = saved?.let { parser.parseBoard(it.currentBoard, entity.type) } ?: initial
                 val restoredBoard = board.mapIndexed { row, cells ->
                     cells.mapIndexed { col, cell -> cell.copy(locked = initial[row][col].locked) }
@@ -390,6 +398,8 @@ class GameViewModel @Inject constructor(
                         notes = saved?.let { game -> parser.parseNotes(game.notes) } ?: emptyList(),
                         timeText = duration.toFormattedString(),
                         mistakesCount = saved?.mistakes ?: 0,
+                        hintsUsed = limits.hintsUsed,
+                        secondChancesUsed = limits.secondChancesUsed,
                         endGame = saved?.completed == true,
                         giveUp = saved?.giveUp == true,
                         remainingUsesList = countRemainingUses(restoredBoard)
@@ -606,7 +616,9 @@ class GameViewModel @Inject constructor(
                 isLoading = false, settings = it.settings, gameType = it.gameType, gameDifficulty = it.gameDifficulty,
                 gameBoard = board, solvedBoard = it.solvedBoard, cages = it.cages,
                 remainingUsesList = countRemainingUses(board), timeText = duration.toFormattedString(),
-                allRecords = it.allRecords, renderNotes = it.renderNotes
+                allRecords = it.allRecords, renderNotes = it.renderNotes,
+                // Dicas e segundas chances sao da partida, nao da tentativa: reiniciar nao devolve nenhuma.
+                hintsUsed = it.hintsUsed, secondChancesUsed = it.secondChancesUsed
             )
         }
         undoRedoManager = UndoRedoManager(GameState(state.gameBoard, state.notes))
@@ -679,6 +691,11 @@ class GameViewModel @Inject constructor(
             finishedAt = if (snapshot.endGame) existing?.finishedAt ?: now else null
         )
         if (existing == null) savedGameRepository.insert(saved) else savedGameRepository.update(saved)
+        val limits = GameLimits(snapshot.hintsUsed, snapshot.secondChancesUsed)
+        if (limits != persistedLimits) {
+            gameLimitsStorage.save(request.board.uid, limits)
+            persistedLimits = limits
+        }
         if (request.recordCompletion) {
             recordRepository.insert(
                 Record(

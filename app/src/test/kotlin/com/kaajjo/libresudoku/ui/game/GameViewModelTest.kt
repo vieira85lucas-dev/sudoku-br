@@ -11,6 +11,7 @@ import com.kaajjo.libresudoku.data.database.model.Record
 import com.kaajjo.libresudoku.data.database.model.SavedGame
 import com.kaajjo.libresudoku.data.database.model.SudokuBoard
 import com.kaajjo.libresudoku.data.datastore.AppSettingsManager
+import com.kaajjo.libresudoku.data.datastore.GameLimits
 import com.kaajjo.libresudoku.data.datastore.ThemeSettingsManager
 import com.kaajjo.libresudoku.domain.repository.BoardRepository
 import com.kaajjo.libresudoku.domain.repository.RecordRepository
@@ -60,6 +61,7 @@ class GameViewModelTest {
     private val recordRepository = mockk<RecordRepository>(relaxed = true)
     private val appSettings = mockk<AppSettingsManager>()
     private val themeSettings = mockk<ThemeSettingsManager>()
+    private val limitsStorage = FakeGameLimitsStorage()
     private val viewModels = mutableListOf<GameViewModel>()
     private val savedGames = mutableListOf<SavedGame>()
     private var persistedGame: SavedGame? = null
@@ -454,6 +456,97 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `hints and second chances survive closing and reopening the game`() = runGameTest {
+        stubSettings(
+            GameSettings(inputMethod = 0, remainingUse = false, mistakesLimit = true, mistakesMethod = 2)
+        )
+        coEvery { boardRepository.get(BOARD_ID) } returns board(emptyCells = 5)
+        val first = loadedGame()
+        // uma segunda chance
+        first.sendEvent(GameUiEvent.CellTapped(0, 0))
+        listOf(3, 4, 6).forEach { number -> first.sendEvent(GameUiEvent.NumberTapped(number)) }
+        runCurrent()
+        first.sendEvent(GameUiEvent.AcceptSecondChance)
+        runCurrent()
+        // duas dicas
+        listOf(1, 2).forEach { col ->
+            first.sendEvent(GameUiEvent.CellTapped(0, col))
+            first.sendEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint))
+            runCurrent()
+        }
+        assertEquals(2, first.uiState.value.hintsUsed)
+        assertEquals(1, first.uiState.value.secondChancesUsed)
+        assertEquals(GameLimits(hintsUsed = 2, secondChancesUsed = 1), limitsStorage.stored[BOARD_ID])
+        first.viewModelScope.cancel()
+
+        // o jogador fecha o app e abre de novo
+        val reopened = createViewModel(playedBefore = true)
+        reopened.sendEvent(GameUiEvent.ScreenResumed)
+        runCurrent()
+        assertEquals(2, reopened.uiState.value.hintsUsed)
+        assertEquals(1, reopened.uiState.value.secondChancesUsed)
+
+        // sobra so mais uma dica
+        listOf(3, 4).forEach { col ->
+            reopened.sendEvent(GameUiEvent.CellTapped(0, col))
+            reopened.sendEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint))
+            runCurrent()
+        }
+        assertEquals(PreferencesConstants.MAX_HINTS_PER_GAME, reopened.uiState.value.hintsUsed)
+        assertEquals(0, reopened.uiState.value.gameBoard[0][4].value)
+    }
+
+    @Test
+    fun `a brand new game starts with no hints and no second chances used`() = runGameTest {
+        limitsStorage.stored[BOARD_ID] = GameLimits(hintsUsed = 3, secondChancesUsed = 4)
+        // jogo novo: nao ha partida salva, entao o que sobrou no aparelho nao vale
+        val viewModel = loadedGame()
+        assertEquals(0, viewModel.uiState.value.hintsUsed)
+        assertEquals(0, viewModel.uiState.value.secondChancesUsed)
+    }
+
+    @Test
+    fun `restarting the game does not give back the hints and second chances already used`() = runGameTest {
+        stubSettings(
+            GameSettings(inputMethod = 0, remainingUse = false, mistakesLimit = true, mistakesMethod = 2)
+        )
+        coEvery { boardRepository.get(BOARD_ID) } returns board(emptyCells = 5)
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        listOf(3, 4, 6).forEach { number -> viewModel.sendEvent(GameUiEvent.NumberTapped(number)) }
+        runCurrent()
+        viewModel.sendEvent(GameUiEvent.AcceptSecondChance)
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 1))
+        viewModel.sendEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint))
+        runCurrent()
+
+        viewModel.sendEvent(GameUiEvent.ShowRestartDialog)
+        viewModel.sendEvent(GameUiEvent.ConfirmRestart)
+        runCurrent()
+
+        val state = viewModel.uiState.value
+        assertEquals(1, state.hintsUsed)
+        assertEquals(1, state.secondChancesUsed)
+        assertEquals(0, state.mistakesCount)
+    }
+
+    @Test
+    fun `limits are written only when they change`() = runGameTest {
+        coEvery { boardRepository.get(BOARD_ID) } returns board(emptyCells = 5)
+        val viewModel = loadedGame()
+        advanceTimeBy(5_000)
+        runCurrent()
+        assertEquals(0, limitsStorage.saveCount)
+
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        viewModel.sendEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint))
+        runCurrent()
+        advanceTimeBy(5_000)
+        runCurrent()
+        assertEquals(1, limitsStorage.saveCount)
+    }
+
+    @Test
     fun `advanced hint stays unavailable even when the saved setting is on`() = runGameTest {
         stubSettings(GameSettings(remainingUse = false, advancedHintEnabled = true))
         val viewModel = loadedGame()
@@ -617,7 +710,8 @@ class GameViewModelTest {
         getBoardUseCase = GetBoardUseCase(boardRepository),
         themeSettingsManager = themeSettings,
         savedStateHandle = SavedStateHandle(mapOf("gameUid" to BOARD_ID, "playedBefore" to playedBefore)),
-        getAllRecordsUseCase = GetAllRecordsUseCase(recordRepository)
+        getAllRecordsUseCase = GetAllRecordsUseCase(recordRepository),
+        gameLimitsStorage = limitsStorage
     ).also(viewModels::add)
 
     private fun stubSettings(settings: GameSettings) {

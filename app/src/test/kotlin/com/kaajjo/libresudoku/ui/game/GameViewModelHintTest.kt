@@ -86,7 +86,8 @@ class GameViewModelHintTest {
             savedStateHandle = SavedStateHandle(
                 mapOf("gameUid" to BOARD_UID, "playedBefore" to false)
             ),
-            getAllRecordsUseCase = GetAllRecordsUseCase(recordRepository)
+            getAllRecordsUseCase = GetAllRecordsUseCase(recordRepository),
+            gameLimitsStorage = FakeGameLimitsStorage()
         )
 
         waitUntil {

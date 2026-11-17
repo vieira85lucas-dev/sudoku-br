@@ -13,6 +13,8 @@ import com.kaajjo.libresudoku.data.database.repository.FolderRepositoryImpl
 import com.kaajjo.libresudoku.data.database.repository.RecordRepositoryImpl
 import com.kaajjo.libresudoku.data.database.repository.SavedGameRepositoryImpl
 import com.kaajjo.libresudoku.data.datastore.AppSettingsManager
+import com.kaajjo.libresudoku.data.datastore.DataStoreGameLimitsStorage
+import com.kaajjo.libresudoku.data.datastore.GameLimitsStorage
 import com.kaajjo.libresudoku.data.datastore.ThemeSettingsManager
 import com.kaajjo.libresudoku.domain.repository.BoardRepository
 import com.kaajjo.libresudoku.domain.repository.DatabaseRepository
@@ -76,6 +78,11 @@ class AppModule {
     @Singleton
     fun provideAppSettingsManager(@ApplicationContext context: Context) =
         AppSettingsManager(context)
+
+    @Provides
+    @Singleton
+    fun provideGameLimitsStorage(@ApplicationContext context: Context): GameLimitsStorage =
+        DataStoreGameLimitsStorage(context)
 
     @Provides
     @Singleton
