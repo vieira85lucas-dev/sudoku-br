@@ -6,6 +6,14 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
+    <!--
+        A tela fixa em retrato faz o Google Play entender "retrato" como exigencia do aparelho,
+        o que tira o app de computadores, PC e Android XR. Marcar como nao obrigatorio libera esses aparelhos.
+    -->
+    <uses-feature
+        android:name="android.hardware.screen.portrait"
+        android:required="false" />
+
     <application
         android:name=".LibreSudokuApp"
         android:allowBackup="true"
