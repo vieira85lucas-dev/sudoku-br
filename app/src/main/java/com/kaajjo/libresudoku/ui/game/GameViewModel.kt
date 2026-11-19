@@ -229,7 +229,7 @@ class GameViewModel @Inject constructor(
     private fun togglePause() {
         playRequested = !state.gamePlaying
         if (playRequested) startTimer() else pauseTimer()
-        _uiState.update { it.copy(currCell = Cell(-1, -1)) }
+        _uiState.update { it.copy(currCell = Cell(-1, -1), userPaused = !playRequested) }
     }
 
     private fun finishFirstGameOnboarding() {
@@ -429,6 +429,7 @@ class GameViewModel @Inject constructor(
         if (!state.gamePlaying) {
             if (!event.longTap) {
                 playRequested = true
+                _uiState.update { it.copy(userPaused = false) }
                 startTimer()
                 if (state.gamePlaying) produceSideEffect(GameUiSideEffect.HapticFeedback)
             }

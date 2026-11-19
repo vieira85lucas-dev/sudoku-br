@@ -547,6 +547,45 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `pausing marks the game as paused by the player and resuming clears it`() = runGameTest {
+        val viewModel = loadedGame()
+        assertFalse(viewModel.uiState.value.userPaused)
+
+        viewModel.sendEvent(GameUiEvent.TogglePause)
+        runCurrent()
+        assertFalse(viewModel.uiState.value.gamePlaying)
+        assertTrue(viewModel.uiState.value.userPaused)
+
+        viewModel.sendEvent(GameUiEvent.TogglePause)
+        runCurrent()
+        assertTrue(viewModel.uiState.value.gamePlaying)
+        assertFalse(viewModel.uiState.value.userPaused)
+    }
+
+    @Test
+    fun `leaving the screen is not a pause by the player`() = runGameTest {
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.ScreenPaused)
+        runCurrent()
+        assertFalse(viewModel.uiState.value.gamePlaying)
+        assertFalse(viewModel.uiState.value.userPaused)
+    }
+
+    @Test
+    fun `restarting the game clears the pause`() = runGameTest {
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.TogglePause)
+        runCurrent()
+        assertTrue(viewModel.uiState.value.userPaused)
+
+        viewModel.sendEvent(GameUiEvent.ShowRestartDialog)
+        viewModel.sendEvent(GameUiEvent.ConfirmRestart)
+        runCurrent()
+        assertFalse(viewModel.uiState.value.userPaused)
+        assertTrue(viewModel.uiState.value.gamePlaying)
+    }
+
+    @Test
     fun `advanced hint stays unavailable even when the saved setting is on`() = runGameTest {
         stubSettings(GameSettings(remainingUse = false, advancedHintEnabled = true))
         val viewModel = loadedGame()

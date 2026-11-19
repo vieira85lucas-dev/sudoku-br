@@ -497,4 +497,8 @@
     <string name="home_edit_name">Change name</string>
     <string name="home_name_dialog_title">What should we call you?</string>
     <string name="home_name_dialog_hint">Your name</string>
+
+    <!-- Game paused -->
+    <string name="game_paused_title">Game paused</string>
+    <string name="game_paused_resume">Resume</string>
 </resources>

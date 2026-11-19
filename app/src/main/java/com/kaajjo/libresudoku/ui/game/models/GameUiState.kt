@@ -76,6 +76,8 @@ data class GameUiState(
     val eraseButtonToggled: Boolean = false,
     val showSolution: Boolean = false,
     val renderNotes: Boolean = true,
+    /** O jogador tocou em pausar (e ainda nao retomou): o tabuleiro fica escondido. */
+    val userPaused: Boolean = false,
     val restartDialog: Boolean = false,
     val giveUpDialog: Boolean = false,
     val secondChanceDialog: Boolean = false,

@@ -115,6 +115,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.kaajjo.libresudoku.ui.game.models.GameSettings
 import com.kaajjo.libresudoku.ui.theme.NeoCard
+import com.kaajjo.libresudoku.ui.theme.NeoButton
 import com.kaajjo.libresudoku.ui.theme.NeoColors
 
 @Destination(
@@ -222,8 +223,13 @@ internal fun GameScreenContent(
         animationSpec = tween(durationMillis = 250),
         label = "restartButtonAnimation"
     )
+    // Pausado pelo jogador: o tabuleiro fica vazio (sem numeros, anotacoes ou destaques) para ninguem resolver com o tempo parado.
+    val paused = uiState.userPaused && !uiState.gamePlaying && !uiState.endGame
+    val hiddenBoard = remember(uiState.size) {
+        List(uiState.size) { row -> List(uiState.size) { col -> Cell(row, col) } }
+    }
     val boardBlur by animateDpAsState(
-        targetValue = if (uiState.gamePlaying || uiState.endGame) 0.dp else 10.dp,
+        targetValue = if (uiState.gamePlaying || uiState.endGame || paused) 0.dp else 10.dp,
         label = "Game board blur"
     )
     val boardScale by animateFloatAsState(
@@ -363,7 +369,7 @@ internal fun GameScreenContent(
             Box(modifier = Modifier.fillMaxWidth().padding(vertical = if (compact) 6.dp else 12.dp)) {
                 Column(modifier = Modifier.align(Alignment.Center)) {
                     AnimatedVisibility(
-                        visible = !uiState.gamePlaying && !uiState.endGame,
+                        visible = !uiState.gamePlaying && !uiState.endGame && !paused,
                         enter = expandVertically(clip = false) + fadeIn(),
                         exit = shrinkVertically(clip = false) + fadeOut()
                     ) {
@@ -381,21 +387,21 @@ internal fun GameScreenContent(
                 ) {
                 Board(
                     modifier = Modifier,
-                    board = if (uiState.showSolution) uiState.solvedBoard else uiState.gameBoard,
+                    board = if (paused) hiddenBoard else if (uiState.showSolution) uiState.solvedBoard else uiState.gameBoard,
                     size = uiState.size,
                     mainTextSize = fontSize,
                     autoFontSize = settings.fontSize == 0,
-                    notes = uiState.notes,
-                    selectedCell = uiState.currCell,
+                    notes = if (paused) emptyList() else uiState.notes,
+                    selectedCell = if (paused) Cell(-1, -1) else uiState.currCell,
                     onClick = { cell ->
                         onEvent(GameUiEvent.CellTapped(cell.row, cell.col))
                     },
                     onLongClick = { cell ->
                         onEvent(GameUiEvent.CellTapped(cell.row, cell.col, longTap = true))
                     },
-                    identicalNumbersHighlight = settings.identicalHighlight,
+                    identicalNumbersHighlight = settings.identicalHighlight && !paused,
                     errorsHighlight = settings.mistakesMethod != 0,
-                    positionLines = settings.positionLines,
+                    positionLines = settings.positionLines && !paused,
                     notesToHighlight = notesToHighlight(
                         notes = uiState.notes,
                         digitFirstNumber = uiState.digitFirstNumber,
@@ -406,12 +412,20 @@ internal fun GameScreenContent(
                     questions = !(uiState.gamePlaying || uiState.endGame) && SDK_INT < Build.VERSION_CODES.R,
                     renderNotes = uiState.renderNotes && !uiState.showSolution,
                     zoomable = uiState.gameType == GameType.Default12x12 || uiState.gameType == GameType.Killer12x12,
-                    crossHighlight = settings.crossHighlight,
-                    cages = uiState.cages,
+                    crossHighlight = settings.crossHighlight && !paused,
+                    cages = if (paused) emptyList() else uiState.cages,
                     cellsToHighlight = uiState.advancedHintData
                         ?.takeIf { uiState.advancedHintMode }
                         ?.let { it.helpCells + it.targetCell }
                 )
+                }
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = paused,
+                    modifier = Modifier.align(Alignment.Center),
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    PausedCard(onResume = { onEvent(GameUiEvent.TogglePause) })
                 }
             }
 
@@ -688,6 +702,34 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit, c
             },
             onDismissRequest = { showHintAdDialog = false }
         )
+    }
+}
+
+/** Aviso no meio do tabuleiro vazio: o jogo esta pausado e como voltar. */
+@Composable
+private fun PausedCard(onResume: () -> Unit) {
+    NeoCard(
+        color = NeoColors.Yellow,
+        shape = RoundedCornerShape(28.dp),
+        shadow = 4.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.game_paused_title),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = NeoColors.Charcoal
+            )
+            NeoButton(
+                text = stringResource(R.string.game_paused_resume),
+                onClick = onResume,
+                color = NeoColors.Lavender
+            )
+        }
     }
 }
 
