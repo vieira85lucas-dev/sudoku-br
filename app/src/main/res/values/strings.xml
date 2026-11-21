@@ -504,4 +504,5 @@
 
     <!-- Hint ready -->
     <string name="hint_armed_message">Hint ready! Tap a cell to see the number.</string>
+    <string name="mistakes_short">Mistakes %1$d/%2$d</string>
 </resources>

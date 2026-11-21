@@ -109,13 +109,14 @@ fun Board(
     zoomable: Boolean = false,
     boardColors: SudokuBoardColors = LocalBoardColors.current,
     crossHighlight: Boolean = false,
-    cages: List<Cage> = emptyList()
+    cages: List<Cage> = emptyList(),
+    outerPadding: androidx.compose.ui.unit.Dp = 4.dp
 ) {
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .padding(4.dp)
+            .padding(outerPadding)
     ) {
         val maxWidth = constraints.maxWidth.toFloat()
 
@@ -149,8 +150,8 @@ fun Board(
             }
         }
         val baseNoteSizePx = with(LocalDensity.current) { (cellSizeDivWidth * 0.8f).toSp().toPx() }
-        // As anotacoes ficam maiores (e em negrito) para serem lidas sem esforco.
-        val noteSizePx = baseNoteSizePx * noteTextScale(size)
+        // O tamanho final das anotacoes e calculado ao desenhar (cabe no quadrinho da celula).
+        val noteSizePx = baseNoteSizePx
         val killerSumSizePx = baseNoteSizePx * 1.1f
 
         // Linhas dos blocos bem mais grossas que as das celulas, para enxergar os grupos.
@@ -438,7 +439,6 @@ fun Board(
                     notes = notes,
                     notesToHighlight = notesToHighlight,
                     cellSize = cellSize,
-                    cellSizeDivWidth = cellSizeDivWidth,
                     killerSumBounds = killerSumBounds
                 )
             }

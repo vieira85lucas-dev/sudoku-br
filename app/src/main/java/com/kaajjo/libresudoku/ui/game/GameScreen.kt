@@ -244,7 +244,11 @@ internal fun GameScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { },
+                title = {
+                    if (!uiState.isLoading && !uiState.loadError) {
+                        GameTopTitle(uiState = uiState, settings = settings)
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 navigationIcon = {
                     IconButton(onClick = { onEvent(GameUiEvent.NavigateBack) }) {
@@ -359,13 +363,10 @@ internal fun GameScreenContent(
                     .onSizeChanged { size ->
                         if (!measuredCompact && needsCompactLayout(size.height, availableHeightPx)) measuredCompact = true
                     }
-                    .padding(horizontal = 12.dp),
+                    // Margens bem finas: o tabuleiro aproveita quase a largura inteira da tela.
+                    .padding(horizontal = 2.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-            AnimatedVisibility(visible = !uiState.endGame) {
-                GameHeader(uiState = uiState, settings = settings, compact = compact)
-            }
-
             Box(modifier = Modifier.fillMaxWidth().padding(vertical = if (compact) 6.dp else 12.dp)) {
                 Column(modifier = Modifier.align(Alignment.Center)) {
                     AnimatedVisibility(
@@ -383,10 +384,11 @@ internal fun GameScreenContent(
                 NeoCard(
                     modifier = Modifier.fillMaxWidth().blur(boardBlur).scale(boardScale, boardScale),
                     shape = RoundedCornerShape(20.dp),
-                    shadow = 3.dp
+                    shadow = 2.dp
                 ) {
                 Board(
                     modifier = Modifier,
+                    outerPadding = 2.dp,
                     board = if (paused) hiddenBoard else if (uiState.showSolution) uiState.solvedBoard else uiState.gameBoard,
                     size = uiState.size,
                     mainTextSize = fontSize,
@@ -438,7 +440,7 @@ internal fun GameScreenContent(
                             GameControls(uiState, onEvent, compact)
                         } else {
                             AfterGameStats(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
                                 difficulty = uiState.gameDifficulty,
                                 type = uiState.gameType,
                                 hintsUsed = uiState.hintsUsed,
@@ -745,69 +747,55 @@ private fun PausedCard(onResume: () -> Unit) {
     }
 }
 
+/**
+ * Informacoes da partida dentro da barra de cima (antes ficavam numa faixa propria abaixo dela,
+ * que gastava altura): nivel, tamanho, percentual, tempo e erros.
+ */
 @Composable
-private fun GameHeader(uiState: GameUiState, settings: GameSettings, compact: Boolean = false) {
+private fun GameTopTitle(uiState: GameUiState, settings: GameSettings) {
     val percent = filledPercent(uiState.gameBoard)
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = if (compact) 4.dp else 12.dp, bottom = 4.dp),
-        verticalAlignment = Alignment.Bottom,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "${stringResource(uiState.gameDifficulty.resName)} · ${stringResource(uiState.gameType.resName)}".uppercase(),
-                fontSize = 10.sp,
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 1.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
-            )
-            if (!compact) {
+    Column(verticalArrangement = Arrangement.Center) {
+        Text(
+            text = "${stringResource(uiState.gameDifficulty.resName)} · ${stringResource(uiState.gameType.resName)} · $percent%".uppercase(),
+            fontSize = 10.sp,
+            fontWeight = FontWeight.ExtraBold,
+            letterSpacing = 0.6.sp,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (settings.timerEnabled || uiState.endGame) {
+                Icon(
+                    imageVector = Icons.Rounded.Timer,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(3.dp))
                 Text(
-                    text = stringResource(R.string.game_title),
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold
+                    text = uiState.timeText,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    maxLines = 1
                 )
             }
             if (settings.mistakesLimit && settings.mistakesMethod != 0) {
+                Spacer(Modifier.width(8.dp))
                 Text(
                     text = stringResource(
-                        R.string.mistakes_number_out_of,
+                        R.string.mistakes_short,
                         uiState.mistakesCount,
                         PreferencesConstants.MISTAKES_LIMIT
                     ),
                     modifier = Modifier
-                        .padding(top = 6.dp)
                         .background(NeoColors.Coral.copy(alpha = 0.55f), RoundedCornerShape(50))
-                        .padding(horizontal = 10.dp, vertical = 3.dp),
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
+                        .padding(horizontal = 8.dp, vertical = 2.dp),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1
                 )
             }
-        }
-        Column(horizontalAlignment = Alignment.End) {
-            if (settings.timerEnabled || uiState.endGame) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Rounded.Timer,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = uiState.timeText,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                }
-            }
-            Text(
-                text = stringResource(R.string.game_percent_done, percent).uppercase(),
-                fontSize = 10.sp,
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 0.8.sp,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
-            )
         }
     }
 }

@@ -494,4 +494,5 @@
 
     <!-- Dica carregada -->
     <string name="hint_armed_message">Dica pronta! Toque numa célula para ver o número.</string>
+    <string name="mistakes_short">Erros %1$d/%2$d</string>
 </resources>

@@ -49,37 +49,28 @@ fun DrawScope.drawNotes(
     notes: List<Note>,
     notesToHighlight: List<Note>,
     cellSize: Float,
-    cellSizeDivWidth: Float,
     killerSumBounds: android.graphics.Rect,
 ) {
-    val noteBounds = android.graphics.Rect()
+    val padding = cellSize * NOTE_PADDING_RATIO
+    // No modo Assassino, a soma da gaiola ocupa o topo da celula.
+    val topReserve = if (killerSumBounds.height() > 0) killerSumBounds.height() * 1.5f else 0f
 
-    paint.getTextBounds("1", 0, 1, noteBounds)
-    val cellDivHeight = (cellSize - killerSumBounds.height() * 1.5f) / floor(sqrt(size.toFloat()))
+    // O tamanho do texto vem do quadrinho, para o numero sempre caber dentro da celula.
+    val referenceSlot = noteSlot(1, size, cellSize, padding, topReserve)
+    paint.textSize = noteTextSizeFor(referenceSlot)
+    val digitBounds = android.graphics.Rect()
+    paint.getTextBounds("8", 0, 1, digitBounds)
+    val digitHeight = digitBounds.height().toFloat()
 
     drawIntoCanvas { canvas ->
         notes.forEach { note ->
-            val textToDraw = note.value.toString(16).uppercase()
-            val noteTextMeasure = paint.measureText(textToDraw)
-
-            val noteCol = getNoteColumnNumber(note.value, size)
-            val noteRow = getNoteRowNumber(note.value, size)
-
-
-
-            val horizontalPadding =
-                if (noteRow == 0) noteTextMeasure / 3f
-                else if (noteRow == 1) 0f
-                else if (noteRow == 2 && note.value > 9) 0f
-                else -(noteTextMeasure / 3f)
-
+            val slot = noteSlot(note.value, size, cellSize, padding, topReserve)
+            val centerX = note.col * cellSize + slot.centerX
+            val centerY = note.row * cellSize + slot.centerY
 
             if (notesToHighlight.contains(note)) {
                 // Quadradinho de fundo atras da anotacao, como nos numeros destacados.
-                val centerX = note.col * cellSize + cellSizeDivWidth / 2f + (cellSizeDivWidth * noteRow) + horizontalPadding
-                val centerY = note.row * cellSize + noteBounds.height() * 1.5f + killerSumBounds.height() +
-                        (cellDivHeight * noteCol) - (noteBounds.height() * 0.5f)
-                val half = maxOf(noteTextMeasure * 0.85f, noteBounds.height() * 0.8f)
+                val half = minOf(slot.width, slot.height) * 0.5f * 0.98f
                 canvas.nativeCanvas.drawRoundRect(
                     android.graphics.RectF(centerX - half, centerY - half, centerX + half, centerY + half),
                     half * 0.3f,
@@ -88,15 +79,19 @@ fun DrawScope.drawNotes(
                 )
             }
 
+            val text = note.value.toString(16).uppercase()
             canvas.nativeCanvas.drawText(
-                textToDraw,
-                note.col * cellSize + cellSizeDivWidth / 2f + (cellSizeDivWidth * noteRow) - noteTextMeasure / 2f + horizontalPadding,
-                note.row * cellSize + noteBounds.height() * 1.5f + killerSumBounds.height() + (cellDivHeight * noteCol),
+                text,
+                centerX - paint.measureText(text) / 2f,
+                centerY + digitHeight / 2f,
                 paint
             )
         }
     }
 }
+
+/** Folga entre a grade de anotacoes e a borda da celula. */
+private const val NOTE_PADDING_RATIO = 0.035f
 
 fun DrawScope.drawNumbers(
     size: Int,
@@ -196,10 +191,3 @@ fun DrawScope.drawCrossSelection(
     }
 }
 
-/** Quanto crescem os numeros das anotacoes, conforme o tamanho do tabuleiro. */
-fun noteTextScale(boardSize: Int): Float = when (boardSize) {
-    6 -> 1.15f
-    9 -> 1.35f
-    12 -> 1.2f
-    else -> 1f
-}

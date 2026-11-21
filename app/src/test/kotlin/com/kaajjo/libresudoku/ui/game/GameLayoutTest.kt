@@ -2,7 +2,6 @@ package com.kaajjo.libresudoku.ui.game
 
 import com.kaajjo.libresudoku.core.Cell
 import com.kaajjo.libresudoku.core.Note
-import com.kaajjo.libresudoku.ui.components.board.noteTextScale
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -23,12 +22,6 @@ class GameLayoutTest {
     @Test
     fun `an unknown free space never turns the compact layout on`() {
         assertFalse(needsCompactLayout(contentHeightPx = 1300, availableHeightPx = 0))
-    }
-
-    @Test
-    fun `note digits are bigger on every board size`() {
-        listOf(6, 9, 12).forEach { assertTrue(noteTextScale(it) > 1f) }
-        assertEquals(1f, noteTextScale(4), 0.0001f)
     }
 
     private fun board(selectedValue: Int) = List(9) { r ->
