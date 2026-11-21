@@ -54,6 +54,13 @@ sealed interface GameUiEvent {
     data class ToolbarClicked(val item: ToolBarItem) : GameUiEvent
 
     /**
+     * The player earned a hint (rewarded video watched, or subscriber). Handled even while the game
+     * is paused, because the video pauses the screen before the reward arrives. The hint is applied
+     * to the selected cell, or kept loaded until the player taps a cell.
+     */
+    data object HintEarned : GameUiEvent
+
+    /**
      * Toggles erase-on-tap mode and clears note mode and the current selection
      */
     data object ToggleEraseMode : GameUiEvent

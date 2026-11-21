@@ -585,6 +585,12 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit, c
     val context = LocalContext.current
     val activity = context.findActivity()
     var showHintAdDialog by remember { mutableStateOf(false) }
+    // Dica carregada (depois do video): avisa o que fazer agora.
+    LaunchedEffect(uiState.hintArmed) {
+        if (uiState.hintArmed) {
+            Toast.makeText(context, R.string.hint_armed_message, Toast.LENGTH_LONG).show()
+        }
+    }
 
     Column(
         verticalArrangement = if (uiState.settings.funKeyboardOverNum) ReverseArrangement else Arrangement.Top
@@ -616,21 +622,27 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit, c
                 )
             }
             if (!uiState.settings.disableHints) {
+                val premium = adsManager?.adsRemoved?.value == true
+                val limitReached = uiState.hintsUsed >= PreferencesConstants.MAX_HINTS_PER_GAME
                 ToolbarItem(
                     modifier = Modifier.weight(1f),
                     painter = painterResource(R.drawable.ic_lightbulb_stars_24),
                     label = stringResource(R.string.game_tool_hint),
+                    toggled = uiState.hintArmed,
+                    // "AD": a dica pede um video. Some para assinantes, com a dica ja carregada e no limite.
+                    badge = if (!premium && !uiState.hintArmed && !limitReached) "AD" else null,
                     compact = compact,
                     onClick = {
-                        val premium = adsManager?.adsRemoved?.value == true
                         when {
-                            uiState.hintsUsed >= PreferencesConstants.MAX_HINTS_PER_GAME ->
+                            limitReached ->
                                 Toast.makeText(
                                     context,
                                     context.getString(R.string.hint_limit_reached, PreferencesConstants.MAX_HINTS_PER_GAME),
                                     Toast.LENGTH_SHORT
                                 ).show()
-                            premium -> onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint))
+                            uiState.hintArmed ->
+                                Toast.makeText(context, R.string.hint_armed_message, Toast.LENGTH_SHORT).show()
+                            premium -> onEvent(GameUiEvent.HintEarned)
                             adsManager != null && activity != null && adsManager.isRewardedReady() ->
                                 showHintAdDialog = true
                             else -> Toast.makeText(context, R.string.ad_unavailable, Toast.LENGTH_SHORT).show()
@@ -690,7 +702,7 @@ private fun GameControls(uiState: GameUiState, onEvent: (GameUiEvent) -> Unit, c
                     if (adsManager != null && activity != null) {
                         adsManager.showRewarded(
                             activity,
-                            onReward = { onEvent(GameUiEvent.ToolbarClicked(ToolBarItem.Hint)) },
+                            onReward = { onEvent(GameUiEvent.HintEarned) },
                             onUnavailable = {
                                 Toast.makeText(context, R.string.ad_unavailable, Toast.LENGTH_SHORT).show()
                             }

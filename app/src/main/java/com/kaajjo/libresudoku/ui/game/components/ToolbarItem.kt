@@ -46,6 +46,7 @@ fun ToolbarItem(
     painter: Painter,
     toggled: Boolean = false,
     label: String? = null,
+    badge: String? = null,
     compact: Boolean = false,
     onClick: () -> Unit = { },
     onLongClick: () -> Unit = { }
@@ -75,6 +76,21 @@ fun ToolbarItem(
                 contentDescription = label,
                 tint = if (toggled) NeoColors.Charcoal else MaterialTheme.colorScheme.onSurface
             )
+            // Selo no canto (por exemplo "AD": este botao pede um video).
+            if (badge != null) {
+                Text(
+                    text = badge,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(end = 6.dp)
+                        .background(NeoColors.Yellow, RoundedCornerShape(50))
+                        .border(1.dp, NeoColors.Charcoal, RoundedCornerShape(50))
+                        .padding(horizontal = 6.dp, vertical = 1.dp),
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = NeoColors.Charcoal
+                )
+            }
         }
         // No modo compacto o nome some (continua como descricao para leitores de tela).
         if (label != null && !compact) {

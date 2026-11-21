@@ -586,6 +586,118 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `a hint earned while the video paused the screen is kept and used on the next tap`() = runGameTest {
+        coEvery { boardRepository.get(BOARD_ID) } returns board(emptyCells = 5)
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        runCurrent()
+
+        // O video abre: a tela e pausada e a selecao some. O premio chega com a partida parada.
+        viewModel.sendEvent(GameUiEvent.ScreenPaused)
+        runCurrent()
+        assertFalse(viewModel.uiState.value.gamePlaying)
+        viewModel.sendEvent(GameUiEvent.HintEarned)
+        runCurrent()
+        assertTrue(viewModel.uiState.value.hintArmed)
+        assertEquals(0, viewModel.uiState.value.hintsUsed)
+
+        // O jogador volta, toca numa celula e o numero certo aparece.
+        viewModel.sendEvent(GameUiEvent.ScreenResumed)
+        runCurrent()
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 1))
+        runCurrent()
+        val state = viewModel.uiState.value
+        assertEquals(3, state.gameBoard[0][1].value)
+        assertEquals(1, state.hintsUsed)
+        assertFalse(state.hintArmed)
+    }
+
+    @Test
+    fun `a hint earned with a cell already selected is applied right away`() = runGameTest {
+        coEvery { boardRepository.get(BOARD_ID) } returns board(emptyCells = 5)
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 2))
+        viewModel.sendEvent(GameUiEvent.HintEarned)
+        runCurrent()
+        val state = viewModel.uiState.value
+        assertEquals(4, state.gameBoard[0][2].value)
+        assertEquals(1, state.hintsUsed)
+        assertFalse(state.hintArmed)
+    }
+
+    @Test
+    fun `a loaded hint waits when a given cell is tapped`() = runGameTest {
+        coEvery { boardRepository.get(BOARD_ID) } returns board(emptyCells = 3)
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.HintEarned)
+        runCurrent()
+        assertTrue(viewModel.uiState.value.hintArmed)
+
+        // celula (0,5) e dada (so as 3 primeiras estao vazias)
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 5))
+        runCurrent()
+        assertTrue(viewModel.uiState.value.hintArmed)
+        assertEquals(0, viewModel.uiState.value.hintsUsed)
+    }
+
+    @Test
+    fun `a hint is not spent on a cell that is already right`() = runGameTest {
+        coEvery { boardRepository.get(BOARD_ID) } returns board(emptyCells = 5)
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        viewModel.sendEvent(GameUiEvent.NumberTapped(5)) // 5 e o numero certo da celula (0,0)
+        runCurrent()
+        assertEquals(5, viewModel.uiState.value.gameBoard[0][0].value)
+
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        runCurrent()
+        viewModel.sendEvent(GameUiEvent.CellTapped(0, 0))
+        runCurrent()
+        viewModel.sendEvent(GameUiEvent.HintEarned)
+        runCurrent()
+        assertEquals(0, viewModel.uiState.value.hintsUsed)
+    }
+
+    @Test
+    fun `a second hint cannot be loaded while one is waiting and the limit still applies`() = runGameTest {
+        coEvery { boardRepository.get(BOARD_ID) } returns board(emptyCells = 5)
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.HintEarned)
+        viewModel.sendEvent(GameUiEvent.HintEarned)
+        runCurrent()
+        assertTrue(viewModel.uiState.value.hintArmed)
+        assertEquals(0, viewModel.uiState.value.hintsUsed)
+
+        // usa as tres dicas
+        listOf(0, 1, 2).forEach { col ->
+            viewModel.sendEvent(GameUiEvent.CellTapped(0, col))
+            runCurrent()
+            viewModel.sendEvent(GameUiEvent.HintEarned)
+            runCurrent()
+        }
+        assertEquals(PreferencesConstants.MAX_HINTS_PER_GAME, viewModel.uiState.value.hintsUsed)
+        assertFalse(viewModel.uiState.value.hintArmed)
+
+        // no limite, nao carrega mais dica
+        viewModel.sendEvent(GameUiEvent.HintEarned)
+        runCurrent()
+        assertFalse(viewModel.uiState.value.hintArmed)
+    }
+
+    @Test
+    fun `restarting the game keeps a loaded hint`() = runGameTest {
+        val viewModel = loadedGame()
+        viewModel.sendEvent(GameUiEvent.HintEarned)
+        runCurrent()
+        assertTrue(viewModel.uiState.value.hintArmed)
+
+        viewModel.sendEvent(GameUiEvent.ShowRestartDialog)
+        viewModel.sendEvent(GameUiEvent.ConfirmRestart)
+        runCurrent()
+        assertTrue(viewModel.uiState.value.hintArmed)
+    }
+
+    @Test
     fun `advanced hint stays unavailable even when the saved setting is on`() = runGameTest {
         stubSettings(GameSettings(remainingUse = false, advancedHintEnabled = true))
         val viewModel = loadedGame()

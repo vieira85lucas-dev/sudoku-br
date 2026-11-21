@@ -396,7 +396,7 @@
     <string name="about_privacy_subtitle">Privacy policy</string>
     <string name="about_license_notice">This app is free software licensed under the GNU GPL v3 and is based on LibreSudoku by kaajjo. The complete source code is available on GitHub.</string>
     <string name="hint_ad_title">Get a hint</string>
-    <string name="hint_ad_text">Watch a short video to reveal this hint.</string>
+    <string name="hint_ad_text">Watch a short video to unlock this hint. Then tap a cell to see the number.</string>
     <string name="hint_ad_watch">Watch video</string>
     <string name="remove_ads_title">Remove ads</string>
     <string name="remove_ads_price">%1$s per week. Cancel anytime in Google Play.</string>
@@ -501,4 +501,7 @@
     <!-- Game paused -->
     <string name="game_paused_title">Game paused</string>
     <string name="game_paused_resume">Resume</string>
+
+    <!-- Hint ready -->
+    <string name="hint_armed_message">Hint ready! Tap a cell to see the number.</string>
 </resources>

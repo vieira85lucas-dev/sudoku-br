@@ -174,6 +174,7 @@ class GameViewModel @Inject constructor(
             is GameUiEvent.CellTapped -> onCellTapped(event)
             is GameUiEvent.NumberTapped -> processInputKeyboard(event.number, event.longTap)
             is GameUiEvent.ToolbarClicked -> toolbarClick(event.item)
+            GameUiEvent.HintEarned -> grantHint()
             GameUiEvent.ToggleEraseMode -> toggleEraseMode()
             GameUiEvent.RequestAdvancedHint -> getAdvancedHint()
             GameUiEvent.CancelAdvancedHint -> cancelAdvancedHint()
@@ -441,6 +442,11 @@ class GameViewModel @Inject constructor(
         } else cell.copy()
         _uiState.update { it.copy(currCell = selected) }
         if (selected.row < 0 || selected.locked) return
+        if (state.hintArmed) {
+            // Dica carregada: o toque revela o numero certo (se a celula ja estiver certa, a dica espera).
+            applyHintToSelectedCell()
+            return
+        }
         if ((state.settings.inputMethod == 1 || overrideInputMethodDF) && state.digitFirstNumber > 0) {
             if (event.longTap) {
                 setValueCell(0)
@@ -568,7 +574,7 @@ class GameViewModel @Inject constructor(
         when (item) {
             ToolBarItem.Undo -> if (undoRedoManager.canUndo()) restoreMove(undoRedoManager.undo())
             ToolBarItem.Redo -> if (undoRedoManager.canRedo()) undoRedoManager.redo()?.let(::restoreMove)
-            ToolBarItem.Hint -> if (!state.settings.disableHints) useHint()
+            ToolBarItem.Hint -> grantHint()
             ToolBarItem.Note -> _uiState.update { it.copy(notesToggled = !it.notesToggled, eraseButtonToggled = false) }
             ToolBarItem.Remove -> {
                 if (state.settings.inputMethod == 1 || state.eraseButtonToggled) toggleEraseButton()
@@ -597,14 +603,33 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    private fun useHint() {
+    /**
+     * O jogador ganhou uma dica (viu o video ou e assinante). Se ja ha uma celula selecionada que
+     * aceita a dica, ela e aplicada na hora; senao a dica fica carregada ate o proximo toque numa celula.
+     * Funciona mesmo com a partida pausada, porque o video pausa a tela antes do premio chegar.
+     */
+    private fun grantHint() {
+        if (state.settings.disableHints || state.endGame || state.hintArmed) return
         if (state.hintsUsed >= PreferencesConstants.MAX_HINTS_PER_GAME) return
-        if (!selectedCellEditable()) return
+        if (state.gamePlaying && applyHintToSelectedCell()) return
+        _uiState.update { it.copy(hintArmed = true) }
+    }
+
+    /** Coloca o numero certo na celula selecionada. Falso se nao ha celula que aceite a dica. */
+    private fun applyHintToSelectedCell(): Boolean {
+        if (!selectedCellEditable()) return false
+        val cell = state.currCell
+        val solved = state.solvedBoard[cell.row][cell.col].value
+        // Celula ja certa: a dica nao e gasta.
+        if (state.gameBoard[cell.row][cell.col].value == solved) return false
         clearNotesAtCell()
-        setValueCell(state.solvedBoard[state.currCell.row][state.currCell.col].value, countMistake = false)
+        setValueCell(solved, countMistake = false)
         duration += 30.seconds
-        _uiState.update { it.copy(timeText = duration.toFormattedString(), hintsUsed = it.hintsUsed + 1) }
+        _uiState.update {
+            it.copy(timeText = duration.toFormattedString(), hintsUsed = it.hintsUsed + 1, hintArmed = false)
+        }
         rememberMove()
+        return true
     }
 
     private fun resetGame() {
@@ -619,7 +644,8 @@ class GameViewModel @Inject constructor(
                 remainingUsesList = countRemainingUses(board), timeText = duration.toFormattedString(),
                 allRecords = it.allRecords, renderNotes = it.renderNotes,
                 // Dicas e segundas chances sao da partida, nao da tentativa: reiniciar nao devolve nenhuma.
-                hintsUsed = it.hintsUsed, secondChancesUsed = it.secondChancesUsed
+                hintsUsed = it.hintsUsed, secondChancesUsed = it.secondChancesUsed,
+                hintArmed = it.hintArmed
             )
         }
         undoRedoManager = UndoRedoManager(GameState(state.gameBoard, state.notes))
